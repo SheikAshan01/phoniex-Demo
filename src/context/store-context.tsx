@@ -69,22 +69,53 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = useState<ToastNotification[]>([]);
   const [isInitialized, setIsInitialized] = useState(false);
 
-  // Load from localStorage on client mount
+  // Version key to invalidate stale cache from older sessions
+  const CACHE_VERSION_KEY = "phonex_v3_clean_assets";
+
+  // Load from localStorage on client mount with automatic cache migration
   useEffect(() => {
     try {
+      const storedVersion = localStorage.getItem("phonex_app_version");
+
+      // If version is older, reset products to current verified local INITIAL_PRODUCTS
+      if (storedVersion !== CACHE_VERSION_KEY) {
+        localStorage.removeItem("phonex_products");
+        localStorage.setItem("phonex_app_version", CACHE_VERSION_KEY);
+        setProducts(INITIAL_PRODUCTS);
+      } else {
+        const savedProducts = localStorage.getItem("phonex_products");
+        if (savedProducts) {
+          const parsed: Product[] = JSON.parse(savedProducts);
+          // Defensive filter: replace any obsolete/broken Unsplash links with local assets
+          const cleanProducts = parsed.map((p) => {
+            if (p.image?.includes("photo-1534972195531") || p.image?.includes("photo-1581092335397")) {
+              return { ...p, image: "/images/hero-skin-showcase.jpg" };
+            }
+            return p;
+          });
+          setProducts(cleanProducts);
+        }
+      }
+
       const savedCart = localStorage.getItem("phonex_cart");
-      if (savedCart) setCart(JSON.parse(savedCart));
+      if (savedCart) {
+        const parsedCart: CartItem[] = JSON.parse(savedCart);
+        const cleanCart = parsedCart.map((item) => {
+          if (item.image?.includes("photo-1534972195531") || item.image?.includes("photo-1581092335397")) {
+            return { ...item, image: "/images/hero-skin-showcase.jpg" };
+          }
+          return item;
+        });
+        setCart(cleanCart);
+      }
 
       const savedWishlist = localStorage.getItem("phonex_wishlist");
       if (savedWishlist) setWishlist(JSON.parse(savedWishlist));
 
       const savedOrders = localStorage.getItem("phonex_orders");
       if (savedOrders) setOrders(JSON.parse(savedOrders));
-
-      const savedProducts = localStorage.getItem("phonex_products");
-      if (savedProducts) setProducts(JSON.parse(savedProducts));
     } catch {
-      // fallback to initial
+      setProducts(INITIAL_PRODUCTS);
     }
     setIsInitialized(true);
   }, []);

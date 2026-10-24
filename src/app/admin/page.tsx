@@ -207,14 +207,14 @@ export default function AdminDashboardPage() {
   }
 
   return (
-    <div className="bg-slate-50 min-h-screen py-10">
+    <div className="bg-slate-50 min-h-screen py-6 sm:py-10 pb-20 sm:pb-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Admin Bar */}
-        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xs mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-8 border border-slate-200 shadow-xs mb-6 sm:mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-              <h1 className="text-2xl font-black text-slate-900">Store Management Console</h1>
+              <h1 className="text-xl sm:text-2xl font-black text-slate-900">Store Management Console</h1>
               <span className="text-[10px] font-bold bg-slate-900 text-white px-2 py-0.5 rounded">
                 Admin
               </span>
@@ -224,16 +224,16 @@ export default function AdminDashboardPage() {
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center justify-between sm:justify-start gap-2.5 w-full sm:w-auto">
             <Link
               href="/"
-              className="text-xs font-bold text-slate-700 hover:text-blue-600 border border-slate-200 px-3.5 py-2 rounded-xl bg-slate-50"
+              className="flex-1 sm:flex-none text-center text-xs font-bold text-slate-700 hover:text-blue-600 border border-slate-200 px-3.5 py-2 rounded-xl bg-slate-50"
             >
               Storefront &rarr;
             </Link>
             <button
               onClick={() => setIsAuthenticated(false)}
-              className="text-xs font-bold text-rose-600 hover:text-rose-700 border border-rose-200 px-3.5 py-2 rounded-xl bg-rose-50 flex items-center gap-1.5"
+              className="flex-1 sm:flex-none text-center text-xs font-bold text-rose-600 hover:text-rose-700 border border-rose-200 px-3.5 py-2 rounded-xl bg-rose-50 flex items-center justify-center gap-1.5"
             >
               <LogOut className="w-3.5 h-3.5" />
               <span>Sign Out</span>
@@ -241,72 +241,78 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
-        {/* Tab Controls */}
-        <div className="flex gap-2 mb-8 border-b border-slate-200 pb-2">
+        {/* Tab Controls - Responsive Segment Bar */}
+        <div className="grid grid-cols-3 gap-1.5 p-1.5 bg-slate-200/80 rounded-2xl mb-6 sm:mb-8 sm:flex sm:gap-2 sm:p-0 sm:bg-transparent sm:border-b sm:border-slate-200 sm:pb-2">
           <button
             onClick={() => setActiveTab("overview")}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+            aria-label="Sales Overview"
+            className={`py-2 px-1 sm:px-4 sm:py-2 rounded-xl text-xs font-bold transition-all flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 ${
               activeTab === "overview"
                 ? "bg-slate-900 text-white shadow-sm"
-                : "text-slate-600 hover:bg-slate-100"
+                : "text-slate-700 hover:text-slate-950 sm:hover:bg-slate-100"
             }`}
           >
-            Sales Overview
+            <TrendingUp className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
+            <span className="truncate text-[11px] sm:text-xs">Sales Overview</span>
           </button>
           <button
             onClick={() => setActiveTab("products")}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+            aria-label={`Catalog Manager (${products.length})`}
+            className={`py-2 px-1 sm:px-4 sm:py-2 rounded-xl text-xs font-bold transition-all flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 ${
               activeTab === "products"
                 ? "bg-slate-900 text-white shadow-sm"
-                : "text-slate-600 hover:bg-slate-100"
+                : "text-slate-700 hover:text-slate-950 sm:hover:bg-slate-100"
             }`}
           >
-            Catalog Manager ({products.length})
+            <Package className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
+            <span className="truncate text-[11px] sm:text-xs">Catalog Manager ({products.length})</span>
           </button>
           <button
             onClick={() => setActiveTab("orders")}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+            aria-label={`Order Fulfillment (${orders.length})`}
+            className={`py-2 px-1 sm:px-4 sm:py-2 rounded-xl text-xs font-bold transition-all flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 ${
               activeTab === "orders"
                 ? "bg-slate-900 text-white shadow-sm"
-                : "text-slate-600 hover:bg-slate-100"
+                : "text-slate-700 hover:text-slate-950 sm:hover:bg-slate-100"
             }`}
           >
-            Order Fulfillment ({orders.length})
+            <ShoppingBag className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
+            <span className="truncate text-[11px] sm:text-xs">Order Fulfillment ({orders.length})</span>
           </button>
         </div>
 
         {/* 1. OVERVIEW TAB */}
         {activeTab === "overview" && (
-          <div className="space-y-8">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-xs">
-                <span className="text-xs text-slate-500 font-semibold uppercase">Total Sales</span>
-                <div className="text-3xl font-black text-slate-900 mt-2">₹{totalRevenue}</div>
-                <p className="text-[11px] text-emerald-600 font-semibold mt-1">Live demo transactions</p>
+          <div className="space-y-6 sm:space-y-8">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+              <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-slate-200 shadow-xs">
+                <span className="text-[10px] sm:text-xs text-slate-500 font-semibold uppercase">Total Sales</span>
+                <div className="text-2xl sm:text-3xl font-black text-slate-900 mt-1 sm:mt-2">₹{totalRevenue}</div>
+                <p className="text-[10px] sm:text-[11px] text-emerald-600 font-semibold mt-1">Live demo</p>
               </div>
 
-              <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-xs">
-                <span className="text-xs text-slate-500 font-semibold uppercase">Total Orders</span>
-                <div className="text-3xl font-black text-blue-600 mt-2">{orders.length}</div>
-                <p className="text-[11px] text-slate-400 font-medium mt-1">Stored in session database</p>
+              <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-slate-200 shadow-xs">
+                <span className="text-[10px] sm:text-xs text-slate-500 font-semibold uppercase">Total Orders</span>
+                <div className="text-2xl sm:text-3xl font-black text-blue-600 mt-1 sm:mt-2">{orders.length}</div>
+                <p className="text-[10px] sm:text-[11px] text-slate-400 font-medium mt-1">Session DB</p>
               </div>
 
-              <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-xs">
-                <span className="text-xs text-slate-500 font-semibold uppercase">Items Dispatched</span>
-                <div className="text-3xl font-black text-slate-900 mt-2">{totalItemsSold}</div>
-                <p className="text-[11px] text-slate-400 font-medium mt-1">Skins, Glass, & Accessories</p>
+              <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-slate-200 shadow-xs">
+                <span className="text-[10px] sm:text-xs text-slate-500 font-semibold uppercase">Dispatched</span>
+                <div className="text-2xl sm:text-3xl font-black text-slate-900 mt-1 sm:mt-2">{totalItemsSold}</div>
+                <p className="text-[10px] sm:text-[11px] text-slate-400 font-medium mt-1">Items sold</p>
               </div>
 
-              <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-xs">
-                <span className="text-xs text-slate-500 font-semibold uppercase">Catalog Items</span>
-                <div className="text-3xl font-black text-slate-900 mt-2">{products.length}</div>
-                <p className="text-[11px] text-blue-600 font-medium mt-1">Active for checkout</p>
+              <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-slate-200 shadow-xs">
+                <span className="text-[10px] sm:text-xs text-slate-500 font-semibold uppercase">Catalog Items</span>
+                <div className="text-2xl sm:text-3xl font-black text-slate-900 mt-1 sm:mt-2">{products.length}</div>
+                <p className="text-[10px] sm:text-[11px] text-blue-600 font-medium mt-1">Active items</p>
               </div>
             </div>
 
             {/* Recent Orders in Overview */}
-            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xs">
-              <h2 className="text-lg font-bold text-slate-900 mb-4">Recent Demo Orders</h2>
+            <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-8 border border-slate-200 shadow-xs">
+              <h2 className="text-base sm:text-lg font-bold text-slate-900 mb-4">Recent Demo Orders</h2>
               {orders.length === 0 ? (
                 <p className="text-xs text-slate-400 py-6 text-center">
                   No orders placed yet. Place an order on the storefront to test live tracking!
@@ -341,31 +347,100 @@ export default function AdminDashboardPage() {
 
         {/* 2. PRODUCTS TAB */}
         {activeTab === "products" && (
-          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xs space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-8 border border-slate-200 shadow-xs space-y-4 sm:space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="relative w-full sm:w-72">
                 <input
                   type="text"
                   value={productSearch}
                   onChange={(e) => setProductSearch(e.target.value)}
                   placeholder="Filter catalog..."
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-900"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-3 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-blue-600 focus:bg-white shadow-xs"
                 />
-                <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+                <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
               </div>
 
               <button
                 onClick={() => setIsNewProductModalOpen(true)}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs py-2.5 px-4 rounded-xl flex items-center justify-center gap-1.5 shadow-sm"
+                className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-bold text-xs py-2.5 px-4 rounded-xl flex items-center justify-center gap-1.5 shadow-sm transition-all"
               >
                 <Plus className="w-4 h-4" />
                 <span>Add New Product</span>
               </button>
             </div>
 
-            {/* Products Table */}
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
+            {/* Mobile View: Clean Responsive Cards (Screens < 640px) */}
+            <div className="sm:hidden space-y-3">
+              {filteredProducts.map((p) => (
+                <div
+                  key={p.id}
+                  className="p-3.5 rounded-2xl border border-slate-200/80 bg-slate-50/70 space-y-2.5"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-14 h-14 rounded-xl bg-white border border-slate-200 overflow-hidden relative flex-shrink-0 shadow-xs">
+                      <Image
+                        src={p.image}
+                        alt={p.name}
+                        fill
+                        className="object-cover"
+                        sizes="56px"
+                      />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="font-bold text-xs text-slate-900 truncate leading-snug">
+                        {p.name}
+                      </p>
+                      <p className="text-[11px] text-slate-500 truncate mt-0.5">
+                        {p.categoryName}
+                      </p>
+                      <div className="flex items-center gap-2 mt-1 flex-wrap">
+                        <span className="font-black text-xs text-slate-900">₹{p.price}</span>
+                        <span className="text-[10px] text-slate-400 line-through">₹{p.mrp}</span>
+                        {p.badge && (
+                          <span className="bg-slate-900 text-white text-[9px] font-bold px-1.5 py-0.5 rounded">
+                            {p.badge}
+                          </span>
+                        )}
+                        <span
+                          className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${
+                            p.inStock
+                              ? "bg-emerald-100/70 text-emerald-800"
+                              : "bg-rose-100/70 text-rose-800"
+                          }`}
+                        >
+                          {p.inStock ? "In Stock" : "Sold Out"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Mobile Actions Toolbar */}
+                  <div className="pt-2 border-t border-slate-200/60 flex items-center justify-between">
+                    <span className="text-[10px] text-slate-400 font-mono">ID: {p.id.slice(0, 8)}...</span>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => setEditingProduct({ ...p })}
+                        className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-700 hover:text-blue-600 text-xs font-semibold flex items-center gap-1 shadow-xs"
+                      >
+                        <Edit className="w-3.5 h-3.5" />
+                        <span>Edit</span>
+                      </button>
+                      <button
+                        onClick={() => deleteProduct(p.id)}
+                        className="px-3 py-1.5 rounded-lg border border-rose-200 bg-rose-50/50 text-rose-600 hover:bg-rose-100 text-xs font-semibold flex items-center gap-1 shadow-xs"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        <span>Delete</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop Table View (Screens >= 640px) */}
+            <div className="hidden sm:block overflow-x-auto">
+              <table className="w-full min-w-[650px] text-left text-xs">
                 <thead>
                   <tr className="border-b border-slate-200 text-slate-400 font-bold uppercase text-[10px]">
                     <th className="py-3 px-2">Product</th>
@@ -433,7 +508,7 @@ export default function AdminDashboardPage() {
 
         {/* 3. ORDERS TAB */}
         {activeTab === "orders" && (
-          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xs space-y-6">
+          <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-8 border border-slate-200 shadow-xs space-y-4 sm:space-y-6">
             <div className="flex items-center justify-between gap-4">
               <div className="relative w-full sm:w-72">
                 <input
@@ -441,9 +516,9 @@ export default function AdminDashboardPage() {
                   value={orderSearch}
                   onChange={(e) => setOrderSearch(e.target.value)}
                   placeholder="Search orders by customer or ID..."
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-900"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-3 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-blue-600 focus:bg-white shadow-xs"
                 />
-                <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+                <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
               </div>
             </div>
 
@@ -454,7 +529,7 @@ export default function AdminDashboardPage() {
                 {filteredOrders.map((ord) => (
                   <div
                     key={ord.id}
-                    className="p-4 rounded-2xl border border-slate-200 bg-slate-50/50 space-y-3 text-xs"
+                    className="p-3.5 sm:p-4 rounded-2xl border border-slate-200 bg-slate-50/50 space-y-3 text-xs"
                   >
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-slate-200">
                       <div>
@@ -465,7 +540,7 @@ export default function AdminDashboardPage() {
                           {new Date(ord.createdAt).toLocaleString("en-IN")}
                         </span>
                       </div>
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto">
                         <span className="font-black text-slate-900 text-sm">₹{ord.total}</span>
                         {/* Status Switcher Dropdown */}
                         <select
@@ -510,7 +585,7 @@ export default function AdminDashboardPage() {
         {/* Modal: Edit Existing Product */}
         {editingProduct && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
-            <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border border-slate-200">
+            <div className="bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-8 max-w-md w-full shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto">
               <h2 className="text-lg font-black text-slate-900 mb-4">Edit Product</h2>
               <form onSubmit={handleSaveProductEdit} className="space-y-3 text-xs">
                 <div>
@@ -597,7 +672,7 @@ export default function AdminDashboardPage() {
         {/* Modal: Add New Product */}
         {isNewProductModalOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
-            <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border border-slate-200">
+            <div className="bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-8 max-w-md w-full shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto">
               <h2 className="text-lg font-black text-slate-900 mb-4">Add Product to Catalog</h2>
               <form onSubmit={handleCreateProduct} className="space-y-3 text-xs">
                 <div>
