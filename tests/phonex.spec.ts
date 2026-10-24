@@ -195,14 +195,14 @@ test.describe("PHONEX E-Commerce End-to-End Suite", () => {
 
     // Expect dashboard to load
     await expect(page.locator("h1")).toContainText("Store Management Console");
-    await expect(page.getByText("Sales Overview")).toBeVisible();
+    await expect(page.getByRole("button", { name: /Overview/i })).toBeVisible();
 
     // Switch to Catalog Manager tab
-    await page.getByRole("button", { name: /Catalog Manager/i }).click();
+    await page.getByRole("button", { name: /Catalog/i }).click();
     await expect(page.getByRole("button", { name: "Add New Product" })).toBeVisible();
 
     // Switch to Order Fulfillment tab
-    await page.getByRole("button", { name: /Order Fulfillment/i }).click();
+    await page.getByRole("button", { name: /Order/i }).click();
     await expect(page.getByPlaceholder("Search orders by customer")).toBeVisible();
   });
 

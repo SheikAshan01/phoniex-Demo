@@ -241,43 +241,55 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
-        {/* Tab Controls - Responsive Segment Bar */}
-        <div className="grid grid-cols-3 gap-1.5 p-1.5 bg-slate-200/80 rounded-2xl mb-6 sm:mb-8 sm:flex sm:gap-2 sm:p-0 sm:bg-transparent sm:border-b sm:border-slate-200 sm:pb-2">
+        {/* Tab Controls - Fully Responsive Segment Bar */}
+        <div className="grid grid-cols-3 gap-1.5 p-1.5 bg-slate-100 border border-slate-200/90 rounded-2xl mb-6 sm:mb-8 sm:flex sm:gap-2 sm:p-0 sm:bg-transparent sm:border-0 sm:border-b sm:border-slate-200 sm:rounded-none sm:pb-2">
           <button
+            type="button"
             onClick={() => setActiveTab("overview")}
             aria-label="Sales Overview"
-            className={`py-2 px-1 sm:px-4 sm:py-2 rounded-xl text-xs font-bold transition-all flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 ${
+            className={`w-full min-w-0 py-2.5 px-1 sm:px-4 sm:py-2 rounded-xl text-xs font-bold transition-all flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 overflow-hidden ${
               activeTab === "overview"
-                ? "bg-slate-900 text-white shadow-sm"
-                : "text-slate-700 hover:text-slate-950 sm:hover:bg-slate-100"
+                ? "bg-slate-900 text-white shadow-xs"
+                : "text-slate-600 hover:text-slate-900 hover:bg-white/60 sm:hover:bg-slate-100"
             }`}
           >
-            <TrendingUp className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
-            <span className="truncate text-[11px] sm:text-xs">Sales Overview</span>
+            <TrendingUp className="w-4 h-4 flex-shrink-0" />
+            <span className="truncate max-w-full text-center text-[11px] sm:text-xs">
+              <span className="sm:hidden">Overview</span>
+              <span className="hidden sm:inline">Sales Overview</span>
+            </span>
           </button>
           <button
+            type="button"
             onClick={() => setActiveTab("products")}
             aria-label={`Catalog Manager (${products.length})`}
-            className={`py-2 px-1 sm:px-4 sm:py-2 rounded-xl text-xs font-bold transition-all flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 ${
+            className={`w-full min-w-0 py-2.5 px-1 sm:px-4 sm:py-2 rounded-xl text-xs font-bold transition-all flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 overflow-hidden ${
               activeTab === "products"
-                ? "bg-slate-900 text-white shadow-sm"
-                : "text-slate-700 hover:text-slate-950 sm:hover:bg-slate-100"
+                ? "bg-slate-900 text-white shadow-xs"
+                : "text-slate-600 hover:text-slate-900 hover:bg-white/60 sm:hover:bg-slate-100"
             }`}
           >
-            <Package className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
-            <span className="truncate text-[11px] sm:text-xs">Catalog Manager ({products.length})</span>
+            <Package className="w-4 h-4 flex-shrink-0" />
+            <span className="truncate max-w-full text-center text-[11px] sm:text-xs">
+              <span className="sm:hidden">Catalog ({products.length})</span>
+              <span className="hidden sm:inline">Catalog Manager ({products.length})</span>
+            </span>
           </button>
           <button
+            type="button"
             onClick={() => setActiveTab("orders")}
             aria-label={`Order Fulfillment (${orders.length})`}
-            className={`py-2 px-1 sm:px-4 sm:py-2 rounded-xl text-xs font-bold transition-all flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 ${
+            className={`w-full min-w-0 py-2.5 px-1 sm:px-4 sm:py-2 rounded-xl text-xs font-bold transition-all flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 overflow-hidden ${
               activeTab === "orders"
-                ? "bg-slate-900 text-white shadow-sm"
-                : "text-slate-700 hover:text-slate-950 sm:hover:bg-slate-100"
+                ? "bg-slate-900 text-white shadow-xs"
+                : "text-slate-600 hover:text-slate-900 hover:bg-white/60 sm:hover:bg-slate-100"
             }`}
           >
-            <ShoppingBag className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
-            <span className="truncate text-[11px] sm:text-xs">Order Fulfillment ({orders.length})</span>
+            <ShoppingBag className="w-4 h-4 flex-shrink-0" />
+            <span className="truncate max-w-full text-center text-[11px] sm:text-xs">
+              <span className="sm:hidden">Orders ({orders.length})</span>
+              <span className="hidden sm:inline">Order Fulfillment ({orders.length})</span>
+            </span>
           </button>
         </div>
 
