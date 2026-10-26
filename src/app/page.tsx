@@ -240,22 +240,19 @@ export default function HomePage() {
 
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
             {categories.map((cat) => (
-              <button
+              <Link
                 key={cat.id}
-                type="button"
-                onClick={() => {
-                  setSelectedCategory(cat.id);
-                  const el = document.getElementById("all-products");
-                  el?.scrollIntoView({ behavior: "smooth" });
-                }}
-                className={`p-3 rounded-2xl border text-left transition-all flex flex-col justify-between group ${
-                  selectedCategory === cat.id
-                    ? "border-blue-600 bg-blue-50/50 ring-2 ring-blue-600/20"
-                    : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/50 shadow-2xs"
-                }`}
+                href={`/shop?category=${cat.id}`}
+                className="p-3 rounded-2xl border border-slate-200 bg-white hover:border-blue-500 hover:bg-blue-50/20 hover:shadow-md shadow-2xs text-left transition-all flex flex-col justify-between group"
               >
                 <div className="relative aspect-video w-full rounded-xl overflow-hidden bg-slate-100 mb-2.5">
-                  <Image src={cat.image} alt={cat.name} fill className="object-cover transition-transform duration-300 group-hover:scale-105" sizes="200px" />
+                  <Image
+                    src={cat.image}
+                    alt={cat.name}
+                    fill
+                    className="object-cover transition-transform duration-300 group-hover:scale-105"
+                    sizes="200px"
+                  />
                   <span className="absolute top-1.5 right-1.5 bg-slate-900/90 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">
                     {cat.count}
                   </span>
@@ -268,7 +265,7 @@ export default function HomePage() {
                     {cat.description}
                   </p>
                 </div>
-              </button>
+              </Link>
             ))}
           </div>
         </div>

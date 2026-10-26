@@ -280,5 +280,95 @@ test.describe("PHONEX E-Commerce End-to-End Suite", () => {
       await expect(mainCta).toBeVisible();
     }
   });
+
+  test("12. Verify all exact shop category routes and zero blocking loading state", async ({ page }) => {
+    // 1. /shop — show all available products
+    await page.goto("/shop");
+    await expect(page.locator("h1")).toContainText("Store Catalog");
+    await expect(page.getByText("Loading catalog...")).toHaveCount(0);
+    const allCards = page.locator(".group.relative.bg-white");
+    await expect(allCards).toHaveCount(12);
+
+    // 2. /shop?category=tempered-glass — show only tempered glass
+    await page.goto("/shop?category=tempered-glass");
+    await expect(page.locator("h1")).toContainText("Store Catalog");
+    await expect(page.getByText("Loading catalog...")).toHaveCount(0);
+    await expect(page.getByText("PHONEX Unbreakable 9H Hybrid Screen Protector")).toBeVisible();
+    await expect(page.getByText("28° Anti-Spy 9H Privacy Tempered Glass")).toBeVisible();
+    await expect(page.getByText("PHONEX Turbo 65W GaN Fast Charger")).toHaveCount(0);
+
+    // 3. /shop?category=accessories — show only accessories
+    await page.goto("/shop?category=accessories");
+    await expect(page.getByText("PHONEX Turbo 65W GaN Fast Charger")).toBeVisible();
+    await expect(page.getByText("Heavy-Duty 100W Braided Type-C to Type-C Cable")).toBeVisible();
+    await expect(page.getByText("PHONEX Bass Pro Magnetic Bluetooth Neckband")).toBeVisible();
+    await expect(page.getByText("PHONEX Unbreakable 9H Hybrid Screen Protector")).toHaveCount(0);
+
+    // 4. /shop?category=custom-skins — show only custom skins
+    await page.goto("/shop?category=custom-skins");
+    await expect(page.getByText("PHONEX Precision Custom Mobile Skin")).toBeVisible();
+    await expect(page.getByText("Pro 3D Textured Carbon Fiber Skin")).toBeVisible();
+    await expect(page.getByText("PHONEX Turbo 65W GaN Fast Charger")).toHaveCount(0);
+
+    // 5. Invalid category fallback gracefully
+    await page.goto("/shop?category=nonexistent-invalid");
+    await expect(page.getByText(/not found/i)).toBeVisible();
+    const browseAllBtn = page.getByRole("button", { name: /Browse All Products/i });
+    await expect(browseAllBtn).toBeVisible();
+    await browseAllBtn.click();
+    await expect(page.getByText("PHONEX Precision Custom Mobile Skin")).toBeVisible();
+  });
+
+  test("13. Homepage category tiles navigate to correct shop URLs", async ({ page }) => {
+    await page.goto("/");
+
+    // Click Tempered Glass category tile
+    const glassTile = page.locator("section:has-text('Shop by Category')").getByRole("link", { name: /Tempered Glass/i }).first();
+    await glassTile.click();
+    await expect(page).toHaveURL(/\/shop\?category=tempered-glass/);
+    await expect(page.getByText("PHONEX Unbreakable 9H Hybrid Screen Protector").first()).toBeVisible();
+
+    // Go back to home
+    await page.goto("/");
+
+    // Click Fast Chargers & Cables category tile
+    const accessoriesTile = page.locator("section:has-text('Shop by Category')").getByRole("link", { name: /Fast Chargers & Cables/i }).first();
+    await accessoriesTile.click();
+    await expect(page).toHaveURL(/\/shop\?category=accessories/);
+    await expect(page.getByText("PHONEX Turbo 65W GaN Fast Charger").first()).toBeVisible();
+
+    // Go back to home
+    await page.goto("/");
+
+    // Click Custom Mobile Skins category tile
+    const skinsTile = page.locator("section:has-text('Shop by Category')").getByRole("link", { name: /Custom Mobile Skins/i }).first();
+    await skinsTile.click();
+    await expect(page).toHaveURL(/\/shop\?category=custom-skins/);
+    await expect(page.getByText("PHONEX Precision Custom Mobile Skin").first()).toBeVisible();
+  });
+
+  test("14. Product Detail Page mobile responsiveness at 360px, 390px, 430px", async ({ page }) => {
+    const mobileWidths = [360, 390, 430];
+
+    for (const w of mobileWidths) {
+      await page.setViewportSize({ width: w, height: 800 });
+      await page.goto("/product/customised-mobile-skin");
+      await page.waitForLoadState("domcontentloaded");
+
+      // Verify no horizontal overflow
+      const hasOverflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
+      expect(hasOverflow, `Overflow at ${w}px on PDP`).toBe(false);
+
+      // Verify Model selector and Devices label exist cleanly
+      await expect(page.getByText("Select Your Exact Phone Model *").first()).toBeVisible();
+      await expect(page.getByText(/41\+ Devices/i).first()).toBeVisible();
+
+      // Verify Add to Bag and Buy Now buttons are visible and clickable
+      const addBtn = page.getByRole("button", { name: /Add to Bag/i }).first();
+      await expect(addBtn).toBeVisible();
+      const buyBtn = page.getByRole("button", { name: /Buy Now/i }).first();
+      await expect(buyBtn).toBeVisible();
+    }
+  });
 });
 

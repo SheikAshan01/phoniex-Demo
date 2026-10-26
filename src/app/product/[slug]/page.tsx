@@ -231,12 +231,12 @@ function ProductDetailContent() {
                 {/* Model Compatibility Selector (Critical requirement) */}
                 {product.supportedModels && product.supportedModels.length > 0 && (
                   <div className="mt-6 p-4 rounded-2xl bg-slate-50 border border-slate-200/80">
-                    <div className="flex items-center justify-between mb-2">
+                    <div className="flex flex-wrap items-baseline justify-between gap-1.5 mb-2">
                       <label className="text-xs font-bold text-slate-900 uppercase tracking-wide flex items-center gap-1.5">
-                        <Smartphone className="w-4 h-4 text-blue-600" />
+                        <Smartphone className="w-4 h-4 text-blue-600 flex-shrink-0" />
                         <span>Select Your Exact Phone Model *</span>
                       </label>
-                      <span className="text-[11px] text-slate-500">
+                      <span className="text-[11px] font-medium text-slate-500 whitespace-nowrap">
                         {product.supportedModels.length}+ Devices
                       </span>
                     </div>
@@ -299,58 +299,77 @@ function ProductDetailContent() {
 
               {/* Purchase Action Box */}
               <div className="mt-8 pt-6 border-t border-slate-100">
-                <div className="flex items-center gap-2 sm:gap-3 mb-4">
-                  {/* Quantity */}
-                  <div className="flex items-center border border-slate-300 rounded-xl bg-slate-50 p-1 flex-shrink-0">
+                {/* Responsive Action Buttons: Stacks on mobile (<640px), single flex row on >=640px */}
+                <div className="space-y-2.5 sm:space-y-0 sm:flex sm:items-center sm:gap-3 mb-4">
+                  {/* Top sub-row on mobile: Quantity + Wishlist */}
+                  <div className="flex items-center justify-between sm:justify-start gap-2">
+                    <div className="flex items-center border border-slate-300 rounded-xl bg-slate-50 p-1 flex-shrink-0">
+                      <button
+                        onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                        className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg hover:bg-white flex items-center justify-center font-bold text-slate-700"
+                        aria-label="Decrease quantity"
+                      >
+                        -
+                      </button>
+                      <span className="w-8 sm:w-10 text-center font-bold text-xs sm:text-sm text-slate-900">
+                        {quantity}
+                      </span>
+                      <button
+                        onClick={() => setQuantity(quantity + 1)}
+                        className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg hover:bg-white flex items-center justify-center font-bold text-slate-700"
+                        aria-label="Increase quantity"
+                      >
+                        +
+                      </button>
+                    </div>
+
+                    {/* Wishlist button on mobile */}
                     <button
-                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                      className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg hover:bg-white flex items-center justify-center font-bold text-slate-700"
+                      onClick={() => toggleWishlist(product.id)}
+                      className={`sm:hidden p-2.5 rounded-xl border transition-colors flex-shrink-0 ${
+                        inWishlist
+                          ? "bg-rose-50 border-rose-200 text-rose-500"
+                          : "border-slate-300 hover:bg-slate-50 text-slate-600"
+                      }`}
+                      aria-label="Toggle Wishlist"
                     >
-                      -
-                    </button>
-                    <span className="w-8 sm:w-10 text-center font-bold text-xs sm:text-sm text-slate-900">
-                      {quantity}
-                    </span>
-                    <button
-                      onClick={() => setQuantity(quantity + 1)}
-                      className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg hover:bg-white flex items-center justify-center font-bold text-slate-700"
-                    >
-                      +
+                      <Heart className={`w-4 h-4 ${inWishlist ? "fill-rose-500" : ""}`} />
                     </button>
                   </div>
 
-                  {/* Add to Cart Button */}
-                  <button
-                    onClick={handleAddToCart}
-                    disabled={isAdding}
-                    className="flex-1 bg-slate-900 hover:bg-slate-800 active:scale-[0.98] text-white font-extrabold text-xs sm:text-sm py-3.5 sm:py-4 px-3 sm:px-4 rounded-xl transition-all shadow-xs flex items-center justify-center gap-1.5"
-                  >
-                    {isAdding ? (
-                      <>
-                        <Check className="w-4 h-4" />
-                        <span>Added to Bag!</span>
-                      </>
-                    ) : (
-                      <>
-                        <ShoppingBag className="w-4 h-4" />
-                        <span className="truncate">Add to Bag</span>
-                      </>
-                    )}
-                  </button>
+                  {/* Add to Bag and Buy Now Buttons */}
+                  <div className="grid grid-cols-2 gap-2 flex-1 w-full">
+                    <button
+                      onClick={handleAddToCart}
+                      disabled={isAdding}
+                      className="bg-slate-900 hover:bg-slate-800 active:scale-[0.98] text-white font-extrabold text-xs sm:text-sm py-3.5 sm:py-4 px-2 sm:px-4 rounded-xl transition-all shadow-xs flex items-center justify-center gap-1.5"
+                    >
+                      {isAdding ? (
+                        <>
+                          <Check className="w-4 h-4" />
+                          <span>Added!</span>
+                        </>
+                      ) : (
+                        <>
+                          <ShoppingBag className="w-4 h-4" />
+                          <span className="truncate">Add to Bag</span>
+                        </>
+                      )}
+                    </button>
 
-                  {/* Buy Now Button */}
-                  <button
-                    onClick={handleBuyNow}
-                    className="flex-1 bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white font-extrabold text-xs sm:text-sm py-3.5 sm:py-4 px-3 sm:px-4 rounded-xl transition-all shadow-md flex items-center justify-center gap-1.5"
-                  >
-                    <Zap className="w-4 h-4 fill-white" />
-                    <span className="truncate">Buy Now • ₹{product.price * quantity}</span>
-                  </button>
+                    <button
+                      onClick={handleBuyNow}
+                      className="bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white font-extrabold text-xs sm:text-sm py-3.5 sm:py-4 px-2 sm:px-4 rounded-xl transition-all shadow-md flex items-center justify-center gap-1.5"
+                    >
+                      <Zap className="w-4 h-4 fill-white flex-shrink-0" />
+                      <span className="truncate">Buy Now • ₹{product.price * quantity}</span>
+                    </button>
+                  </div>
 
-                  {/* Wishlist */}
+                  {/* Wishlist on Desktop/Tablet */}
                   <button
                     onClick={() => toggleWishlist(product.id)}
-                    className={`p-3 sm:p-3.5 rounded-xl border transition-colors flex-shrink-0 ${
+                    className={`hidden sm:flex p-3 sm:p-3.5 rounded-xl border transition-colors flex-shrink-0 ${
                       inWishlist
                         ? "bg-rose-50 border-rose-200 text-rose-500"
                         : "border-slate-300 hover:bg-slate-50 text-slate-600"
