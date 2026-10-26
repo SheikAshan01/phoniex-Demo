@@ -370,5 +370,89 @@ test.describe("PHONEX E-Commerce End-to-End Suite", () => {
       await expect(buyBtn).toBeVisible();
     }
   });
+
+  test("15. Clean minimal login & registration page audit across all viewports", async ({ page }) => {
+    // 1. Initial desktop view check
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto("/login");
+    await page.waitForLoadState("domcontentloaded");
+
+    // Verify clean centered card heading & supporting text
+    await expect(page.getByRole("heading", { name: "Welcome back" })).toBeVisible();
+    await expect(page.getByText("Sign in to your PHONEX account.")).toBeVisible();
+
+    // Verify promotional panel features are REMOVED
+    await expect(page.getByText(/500\+ Smartphone models supported/i)).not.toBeVisible();
+    await expect(page.getByText(/Genuine 3M residue-free cast vinyl/i)).not.toBeVisible();
+
+    // Verify standard form fields
+    const identifierInput = page.locator("#auth-identifier");
+    await expect(identifierInput).toBeVisible();
+    await expect(identifierInput).toHaveAttribute("placeholder", "Enter your email or mobile number");
+
+    const passwordInput = page.locator("#auth-password");
+    await expect(passwordInput).toBeVisible();
+    await expect(passwordInput).toHaveAttribute("type", "password");
+
+    // Verify password visibility toggle
+    const toggleBtn = page.getByRole("button", { name: /Show password/i });
+    await expect(toggleBtn).toBeVisible();
+    await toggleBtn.click();
+    await expect(passwordInput).toHaveAttribute("type", "text");
+    await page.getByRole("button", { name: /Hide password/i }).click();
+    await expect(passwordInput).toHaveAttribute("type", "password");
+
+    // Verify primary Sign In button
+    const signInBtn = page.locator("form").getByRole("button", { name: "Sign In", exact: true });
+    await expect(signInBtn).toBeVisible();
+
+    // Verify form validation
+    await signInBtn.click();
+    await expect(page.getByText(/Please enter your email address or 10-digit mobile number/i)).toBeVisible();
+
+    // Verify tab switching to Create Account
+    const createAccountTab = page.getByRole("button", { name: "Create Account" }).first();
+    await createAccountTab.click();
+    await expect(page.getByRole("heading", { name: "Create an account" })).toBeVisible();
+    await expect(page.locator("#signup-name")).toBeVisible();
+    await expect(page.locator("form").getByRole("button", { name: "Create Account", exact: true })).toBeVisible();
+
+    // Switch back to Sign In
+    const signInTab = page.getByRole("button", { name: "Sign In" }).first();
+    await signInTab.click();
+    await expect(page.getByRole("heading", { name: "Welcome back" })).toBeVisible();
+    await expect(page.locator("#signup-name")).not.toBeVisible();
+
+    // Verify Forgot Password flow
+    const forgotBtn = page.getByRole("button", { name: /Forgot password\?/i });
+    await forgotBtn.click();
+    await expect(page.getByRole("heading", { name: "Reset your password" })).toBeVisible();
+    await identifierInput.fill("9842109876");
+    await page.getByRole("button", { name: "Send Recovery Link" }).click();
+    await expect(page.getByText(/Recovery Instructions Sent/i)).toBeVisible();
+    await page.getByRole("button", { name: /Back to Sign In/i }).click();
+    await expect(page.getByRole("heading", { name: "Welcome back" })).toBeVisible();
+
+    // Verify subtle guest shopping link
+    const guestLink = page.getByRole("link", { name: /Continue shopping as guest/i });
+    await expect(guestLink).toBeVisible();
+    await guestLink.click();
+    await expect(page).toHaveURL(/\//);
+
+    // Verify responsiveness across all requested viewports (360, 390, 430, 768, 1024, 1440)
+    const viewports = [360, 390, 430, 768, 1024, 1440];
+    for (const vp of viewports) {
+      await page.setViewportSize({ width: vp, height: 800 });
+      await page.goto("/login");
+      await page.waitForLoadState("domcontentloaded");
+
+      const hasOverflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
+      expect(hasOverflow, `Login page horizontal overflow at ${vp}px`).toBe(false);
+
+      await expect(page.getByRole("heading", { name: "Welcome back" })).toBeVisible();
+      await expect(page.locator("#auth-identifier")).toBeVisible();
+      await expect(page.locator("form").getByRole("button", { name: "Sign In", exact: true })).toBeVisible();
+    }
+  });
 });
 

@@ -1,312 +1,379 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, Suspense } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
-import {
-  Smartphone,
-  Lock,
-  Mail,
-  User,
-  ArrowRight,
-  ShieldCheck,
-  CheckCircle2,
-  ShoppingBag,
-  Eye,
-  EyeOff,
-  Sparkles,
-  Truck,
-  Check,
-} from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Eye, EyeOff, ArrowRight, AlertCircle, CheckCircle2 } from "lucide-react";
 import { useStore } from "@/context/store-context";
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectUrl = searchParams.get("redirect") || "/";
+
   const { showToast } = useStore();
 
-  const [mode, setMode] = useState<"login" | "signup">("login");
+  const [mode, setMode] = useState<"login" | "signup" | "forgot">("login");
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
-  const [phone, setPhone] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [forgotSubmitted, setForgotSubmitted] = useState(false);
+
+  // Input validation
+  const validateForm = (): boolean => {
+    setError("");
+
+    if (mode === "signup") {
+      if (!fullName.trim() || fullName.trim().length < 2) {
+        setError("Please enter your full name (at least 2 characters).");
+        return false;
+      }
+    }
+
+    if (!identifier.trim()) {
+      setError("Please enter your email address or 10-digit mobile number.");
+      return false;
+    }
+
+    // Check basic email or phone format
+    const isEmail = identifier.includes("@") && identifier.includes(".");
+    const isPhone = /^[6-9]\d{9}$/.test(identifier.replace(/[\s-]/g, ""));
+
+    if (!isEmail && !isPhone) {
+      setError("Please enter a valid email address or 10-digit mobile number.");
+      return false;
+    }
+
+    if (mode !== "forgot") {
+      if (!password || password.length < 6) {
+        setError("Password must be at least 6 characters long.");
+        return false;
+      }
+    }
+
+    return true;
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!validateForm()) return;
+
     setIsLoading(true);
+    setError("");
 
     setTimeout(() => {
       setIsLoading(false);
-      if (mode === "signup") {
-        showToast(`Welcome ${fullName || "Shopper"}! Account created successfully.`, "success");
-      } else {
-        showToast("Signed in successfully! Redirecting to shop...", "success");
+
+      if (mode === "forgot") {
+        setForgotSubmitted(true);
+        showToast("Password reset link sent to your registered contact.", "success");
+        return;
       }
-      // Redirect directly to storefront
-      router.push("/");
-    }, 500);
+
+      if (mode === "signup") {
+        showToast(`Welcome, ${fullName.trim()}! Your PHONEX account is ready.`, "success");
+      } else {
+        showToast("Signed in successfully!", "success");
+      }
+
+      // Respect the redirect parameter or go to storefront
+      router.push(redirectUrl);
+    }, 600);
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4 sm:p-6 lg:p-8 relative overflow-hidden">
-      {/* Premium Ambient Background Glows */}
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-indigo-600/15 rounded-full blur-3xl pointer-events-none" />
-
-      {/* Main Container Card */}
-      <div className="relative w-full max-w-4xl bg-slate-950/80 backdrop-blur-xl border border-slate-800/80 rounded-3xl shadow-2xl overflow-hidden grid grid-cols-1 md:grid-cols-12 z-10">
-        
-        {/* Left Side: Brand Showcase & Customer Guarantees */}
-        <div className="md:col-span-5 bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-900 p-6 sm:p-8 md:p-10 text-white flex flex-col justify-between relative overflow-hidden">
-          <div className="relative z-10">
-            {/* Logo */}
-            <Link href="/" className="inline-flex items-center gap-3 mb-4 sm:mb-6 md:mb-8 group">
-              <div className="relative w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white p-0.5 shadow-md group-hover:scale-105 transition-transform">
-                <Image
-                  src="/images/phonex-badge.png"
-                  alt="PHONEX"
-                  fill
-                  className="object-contain"
-                  priority
-                />
-              </div>
-              <div>
-                <span className="font-black text-xl tracking-wider block leading-none">PHONEX</span>
-                <span className="text-[10px] tracking-widest uppercase text-blue-200 font-bold">
-                  Sales • Services • Gadgets
-                </span>
-              </div>
-            </Link>
-
-            {/* Title & Headline */}
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-black tracking-tight leading-tight">
-              {mode === "login" ? "Welcome Back to PHONEX" : "Create Your Shopper Account"}
-            </h1>
-            <p className="mt-2 sm:mt-3 text-xs sm:text-sm text-blue-100 leading-relaxed hidden sm:block">
-              {mode === "login"
-                ? "Access saved delivery addresses, track live courier shipments, and view your custom skin studio creations."
-                : "Join thousands of smartphone enthusiasts enjoying precision 3M vinyl skins and honest ₹99 screen protection."}
-            </p>
+    <div className="w-full max-w-[420px] bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-xs">
+      {/* Brand Logo & Title */}
+      <div className="text-center mb-6">
+        <Link href="/" className="inline-flex flex-col items-center gap-2 group">
+          <div className="relative w-12 h-12 rounded-full overflow-hidden bg-white border border-slate-200 shadow-2xs group-hover:border-blue-600 transition-colors">
+            <Image
+              src="/images/phonex-badge.png"
+              alt="PHONEX Logo"
+              fill
+              priority
+              className="object-contain p-0.5"
+            />
           </div>
-
-          {/* Value Props */}
-          <div className="relative z-10 pt-4 md:pt-8 border-t border-blue-500/40 space-y-2.5 sm:space-y-3.5 text-xs text-blue-100 mt-4 sm:mt-6 md:mt-8">
-            <div className="flex items-center gap-2.5">
-              <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
-                <Check className="w-3.5 h-3.5 text-emerald-300" />
-              </div>
-              <span className="font-medium text-[11px] sm:text-xs">500+ Smartphone models supported</span>
-            </div>
-
-            <div className="flex items-center gap-2.5">
-              <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-300" />
-              </div>
-              <span className="font-medium text-[11px] sm:text-xs">Genuine 3M residue-free cast vinyl</span>
-            </div>
-
-            <div className="flex items-center gap-2.5">
-              <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
-                <Truck className="w-3.5 h-3.5 text-emerald-300" />
-              </div>
-              <span className="font-medium text-[11px] sm:text-xs">Free express shipping above ₹499</span>
-            </div>
-          </div>
-
-          {/* Ambient circles */}
-          <div className="absolute -bottom-16 -right-16 w-56 h-56 rounded-full bg-white/10 blur-2xl pointer-events-none" />
-        </div>
-
-        {/* Right Side: Clean Modern Form */}
-        <div className="md:col-span-7 p-6 sm:p-10 flex flex-col justify-between bg-white text-slate-900">
           <div>
-            {/* Top Bar with Mode Switcher & Direct Storefront link */}
-            <div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-6">
-              {/* Segmented Pill Tab Switcher */}
-              <div className="bg-slate-100 p-1 rounded-xl flex items-center gap-1">
-                <button
-                  type="button"
-                  onClick={() => setMode("login")}
-                  className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                    mode === "login"
-                      ? "bg-white text-slate-900 shadow-xs"
-                      : "text-slate-500 hover:text-slate-800"
-                  }`}
-                >
-                  Sign In
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setMode("signup")}
-                  className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                    mode === "signup"
-                      ? "bg-white text-slate-900 shadow-xs"
-                      : "text-slate-500 hover:text-slate-800"
-                  }`}
-                >
-                  Create Account
-                </button>
-              </div>
-
-              {/* Direct Shopping link */}
-              <Link
-                href="/"
-                className="text-xs font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1 group"
-              >
-                <span>Direct Shopping</span>
-                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-              </Link>
-            </div>
-
-            {/* Auth Form */}
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {mode === "signup" && (
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                    Full Name *
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      required
-                      value={fullName}
-                      onChange={(e) => setFullName(e.target.value)}
-                      placeholder="e.g. Anand Kumar"
-                      className="w-full bg-slate-50 border border-slate-300 rounded-xl pl-10 pr-3 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-blue-600 focus:bg-white transition-all shadow-2xs font-medium"
-                    />
-                    <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
-                  </div>
-                </div>
-              )}
-
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                  Email or Mobile Number *
-                </label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    required
-                    value={identifier}
-                    onChange={(e) => setIdentifier(e.target.value)}
-                    placeholder="Enter email or 10-digit mobile"
-                    className="w-full bg-slate-50 border border-slate-300 rounded-xl pl-10 pr-3 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-blue-600 focus:bg-white transition-all shadow-2xs font-medium"
-                  />
-                  <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
-                </div>
-              </div>
-
-              {mode === "signup" && (
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                    WhatsApp Mobile (for shipment updates)
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="tel"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      placeholder="e.g. 9842012345"
-                      className="w-full bg-slate-50 border border-slate-300 rounded-xl pl-10 pr-3 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-blue-600 focus:bg-white transition-all shadow-2xs font-medium"
-                    />
-                    <Smartphone className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
-                  </div>
-                </div>
-              )}
-
-              <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <label className="block text-xs font-bold text-slate-700">
-                    Password *
-                  </label>
-                  {mode === "login" && (
-                    <button
-                      type="button"
-                      onClick={() => showToast("Enter your registered phone/email to reset password", "info")}
-                      className="text-[11px] font-semibold text-blue-600 hover:underline"
-                    >
-                      Forgot password?
-                    </button>
-                  )}
-                </div>
-                <div className="relative">
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter your password"
-                    className="w-full bg-slate-50 border border-slate-300 rounded-xl pl-10 pr-10 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-blue-600 focus:bg-white transition-all shadow-2xs font-medium"
-                  />
-                  <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600 p-0.5"
-                    aria-label="Toggle password visibility"
-                  >
-                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
-                </div>
-              </div>
-
-              <p className="text-[11px] text-slate-400 leading-relaxed">
-                By continuing, you agree to PHONEX&apos;s{" "}
-                <Link href="/about#privacy" className="text-blue-600 font-semibold hover:underline">
-                  Privacy Policy & Terms
-                </Link>
-                .
-              </p>
-
-              {/* Submit Button */}
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="w-full bg-blue-600 hover:bg-blue-700 active:scale-[0.99] text-white font-bold py-3 px-4 rounded-xl shadow-md transition-all flex items-center justify-center gap-2 text-xs"
-              >
-                {isLoading ? (
-                  <div className="flex items-center gap-2">
-                    <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    <span>Processing securely...</span>
-                  </div>
-                ) : (
-                  <>
-                    <ShoppingBag className="w-4 h-4" />
-                    <span>
-                      {mode === "login"
-                        ? "Log In & Continue Shopping"
-                        : "Create Account & Start Shopping"}
-                    </span>
-                  </>
-                )}
-              </button>
-            </form>
+            <span className="font-black text-xl tracking-wider text-slate-900 block leading-tight">
+              PHONEX
+            </span>
+            <span className="text-[10px] tracking-widest uppercase text-slate-400 font-bold">
+              Sales • Services • Gadgets
+            </span>
           </div>
+        </Link>
 
-          {/* Quick Actions & Skip Login */}
-          <div className="pt-6 border-t border-slate-100 mt-6 space-y-2.5">
-            <button
-              type="button"
-              onClick={() => setMode(mode === "login" ? "signup" : "login")}
-              className="w-full bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-bold py-2.5 rounded-xl transition-colors border border-slate-200"
-            >
-              {mode === "login"
-                ? "New to PHONEX? Create a free account"
-                : "Already registered? Sign In to your account"}
-            </button>
-
-            <Link
-              href="/"
-              className="w-full bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200/80 text-xs font-bold py-2.5 rounded-xl transition-colors flex items-center justify-center gap-1.5 shadow-2xs"
-            >
-              <span>⚡ Skip to Storefront (Browse & Buy as Guest)</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
-          </div>
+        {/* Heading & Subtitle */}
+        <div className="mt-4">
+          <h1 className="text-xl font-bold tracking-tight text-slate-900">
+            {mode === "login" && "Welcome back"}
+            {mode === "signup" && "Create an account"}
+            {mode === "forgot" && "Reset your password"}
+          </h1>
+          <p className="text-xs text-slate-500 mt-1">
+            {mode === "login" && "Sign in to your PHONEX account."}
+            {mode === "signup" && "Register to manage orders and track shipments."}
+            {mode === "forgot" && "Enter your email or phone to receive a recovery link."}
+          </p>
         </div>
       </div>
+
+      {/* Mode Selector Tabs (Sign In / Create Account) */}
+      {mode !== "forgot" && (
+        <div className="grid grid-cols-2 p-1 bg-slate-100 rounded-xl mb-6">
+          <button
+            type="button"
+            onClick={() => {
+              setMode("login");
+              setError("");
+            }}
+            className={`py-2 text-xs font-bold rounded-lg transition-all ${
+              mode === "login"
+                ? "bg-white text-slate-900 shadow-xs"
+                : "text-slate-500 hover:text-slate-800"
+            }`}
+          >
+            Sign In
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setMode("signup");
+              setError("");
+            }}
+            className={`py-2 text-xs font-bold rounded-lg transition-all ${
+              mode === "signup"
+                ? "bg-white text-slate-900 shadow-xs"
+                : "text-slate-500 hover:text-slate-800"
+            }`}
+          >
+            Create Account
+          </button>
+        </div>
+      )}
+
+      {/* Error Alert */}
+      {error && (
+        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-xs font-medium text-red-700 flex items-start gap-2 animate-fadeIn">
+          <AlertCircle className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
+          <span>{error}</span>
+        </div>
+      )}
+
+      {/* Forgot Password Success State */}
+      {mode === "forgot" && forgotSubmitted ? (
+        <div className="text-center py-4 space-y-4">
+          <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto border border-emerald-200">
+            <CheckCircle2 className="w-6 h-6" />
+          </div>
+          <div>
+            <h2 className="text-sm font-bold text-slate-900">Recovery Instructions Sent</h2>
+            <p className="text-xs text-slate-500 mt-1">
+              We&apos;ve sent password reset instructions to{" "}
+              <strong className="text-slate-800">{identifier}</strong>. Check your inbox or SMS.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              setMode("login");
+              setForgotSubmitted(false);
+              setError("");
+            }}
+            className="w-full bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs py-2.5 px-4 rounded-lg transition-colors"
+          >
+            Back to Sign In
+          </button>
+        </div>
+      ) : (
+        /* Form Content */
+        <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+          {/* Registration Name Field */}
+          {mode === "signup" && (
+            <div>
+              <label
+                htmlFor="signup-name"
+                className="block text-xs font-semibold text-slate-800 mb-1.5"
+              >
+                Full Name
+              </label>
+              <input
+                id="signup-name"
+                type="text"
+                autoComplete="name"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                placeholder="Enter your full name"
+                className="w-full bg-white border border-slate-300 rounded-lg px-3.5 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-colors"
+              />
+            </div>
+          )}
+
+          {/* Email or Mobile Number Field */}
+          <div>
+            <label
+              htmlFor="auth-identifier"
+              className="block text-xs font-semibold text-slate-800 mb-1.5"
+            >
+              Email or mobile number
+            </label>
+            <input
+              id="auth-identifier"
+              type="text"
+              autoComplete="username"
+              value={identifier}
+              onChange={(e) => setIdentifier(e.target.value)}
+              placeholder="Enter your email or mobile number"
+              className="w-full bg-white border border-slate-300 rounded-lg px-3.5 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-colors"
+            />
+          </div>
+
+          {/* Password Field (for Login and Signup) */}
+          {mode !== "forgot" && (
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <label
+                  htmlFor="auth-password"
+                  className="block text-xs font-semibold text-slate-800"
+                >
+                  Password
+                </label>
+                {mode === "login" && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMode("forgot");
+                      setError("");
+                    }}
+                    className="text-xs font-semibold text-blue-600 hover:text-blue-700 hover:underline transition-colors"
+                  >
+                    Forgot password?
+                  </button>
+                )}
+              </div>
+              <div className="relative">
+                <input
+                  id="auth-password"
+                  type={showPassword ? "text" : "password"}
+                  autoComplete={mode === "login" ? "current-password" : "new-password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder={mode === "signup" ? "Create a password (min. 6 characters)" : "Enter your password"}
+                  className="w-full bg-white border border-slate-300 rounded-lg pl-3.5 pr-10 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-colors"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600 transition-colors"
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Primary Action Button */}
+          <div className="pt-1">
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold text-sm py-2.5 px-4 rounded-lg shadow-2xs hover:shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              {isLoading ? (
+                <>
+                  <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <span>
+                    {mode === "login" && "Signing in..."}
+                    {mode === "signup" && "Creating account..."}
+                    {mode === "forgot" && "Sending link..."}
+                  </span>
+                </>
+              ) : (
+                <span>
+                  {mode === "login" && "Sign In"}
+                  {mode === "signup" && "Create Account"}
+                  {mode === "forgot" && "Send Recovery Link"}
+                </span>
+              )}
+            </button>
+          </div>
+
+          {/* Forgot mode back button */}
+          {mode === "forgot" && (
+            <button
+              type="button"
+              onClick={() => {
+                setMode("login");
+                setError("");
+              }}
+              className="w-full text-xs font-semibold text-slate-600 hover:text-slate-900 py-2 transition-colors text-center"
+            >
+              ← Back to Sign In
+            </button>
+          )}
+
+          {/* Privacy and Terms */}
+          {mode !== "forgot" && (
+            <p className="text-[11px] text-center text-slate-400 leading-normal pt-2">
+              By continuing, you agree to PHONEX&apos;s{" "}
+              <Link
+                href="/about#privacy"
+                className="text-slate-600 hover:text-slate-900 underline underline-offset-2"
+              >
+                Terms of Service
+              </Link>{" "}
+              and{" "}
+              <Link
+                href="/about#privacy"
+                className="text-slate-600 hover:text-slate-900 underline underline-offset-2"
+              >
+                Privacy Policy
+              </Link>
+              .
+            </p>
+          )}
+        </form>
+      )}
+
+      {/* Subtle Guest Shopping Navigation */}
+      <div className="mt-6 pt-5 border-t border-slate-100 text-center">
+        <Link
+          href={redirectUrl || "/"}
+          className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-slate-900 transition-colors group"
+        >
+          <span>Continue shopping as guest</span>
+          <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <div className="min-h-[calc(100vh-80px)] bg-slate-50/60 flex items-center justify-center p-4 sm:p-6 lg:p-8">
+      <Suspense
+        fallback={
+          <div className="w-full max-w-[420px] bg-white border border-slate-200 rounded-2xl p-8 shadow-xs animate-pulse">
+            <div className="w-12 h-12 bg-slate-200 rounded-full mx-auto mb-4" />
+            <div className="h-5 bg-slate-200 rounded w-1/2 mx-auto mb-2" />
+            <div className="h-3 bg-slate-200 rounded w-3/4 mx-auto mb-6" />
+            <div className="h-10 bg-slate-100 rounded-lg mb-4" />
+            <div className="h-10 bg-slate-100 rounded-lg mb-4" />
+            <div className="h-10 bg-blue-100 rounded-lg" />
+          </div>
+        }
+      >
+        <LoginForm />
+      </Suspense>
     </div>
   );
 }
