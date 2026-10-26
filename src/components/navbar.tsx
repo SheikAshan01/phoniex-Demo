@@ -161,13 +161,14 @@ export function Navbar() {
                 )}
               </Link>
 
-              {/* Account Link */}
+              {/* Flipkart-Style Login Button */}
               <Link
-                href="/account"
-                className="p-2.5 rounded-full text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors hidden md:flex items-center justify-center"
-                aria-label="Customer Account"
+                href="/login"
+                className="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-200 transition-all shadow-2xs"
+                aria-label="Login or Sign Up"
               >
-                <User className="w-5 h-5" />
+                <User className="w-3.5 h-3.5" />
+                <span>Login</span>
               </Link>
 
               {/* Cart Drawer Button */}
@@ -390,6 +391,17 @@ export function Navbar() {
 
                 {/* Secondary Links with Auto-Close */}
                 <div className="pt-4 border-t border-slate-100 space-y-2">
+                  <Link
+                    href="/login"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex items-center justify-between px-3.5 py-2.5 rounded-lg text-sm font-bold text-blue-600 bg-blue-50/70 hover:bg-blue-100/70"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <User className="w-4 h-4 text-blue-600" />
+                      <span>Login / Sign Up</span>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-blue-400" />
+                  </Link>
                   <Link
                     href="/wishlist"
                     onClick={() => setIsMobileMenuOpen(false)}
