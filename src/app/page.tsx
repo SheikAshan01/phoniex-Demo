@@ -133,7 +133,7 @@ export default function HomePage() {
       id: "accessories",
       name: "Fast Chargers & Cables",
       count: "From ₹249",
-      image: "https://images.unsplash.com/photo-1583863788434-e58a36330cf0?auto=format&fit=crop&w=800&q=80",
+      image: "/images/fast-charger.jpg",
       description: "65W GaN power adapters & 100W cables",
     },
   ];

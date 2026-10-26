@@ -193,9 +193,9 @@ export const INITIAL_PRODUCTS: Product[] = [
     reviewsCount: 65,
     shortDescription: "Editorial monochrome ninja manga illustration. Sleek, stealthy, and deeply expressive.",
     description: "Minimalist black and white comic styling inspired by legendary ninja shinobi lore. Rich inky blacks with crisp linework that turns your phone into an editorial statement piece.",
-    image: "https://images.unsplash.com/photo-1563089145-599997674d42?auto=format&fit=crop&w=800&q=80",
+    image: "/images/shinobi-skin.jpg",
     additionalImages: [
-      "https://images.unsplash.com/photo-1563089145-599997674d42?auto=format&fit=crop&w=800&q=80",
+      "/images/shinobi-skin.jpg",
     ],
     features: [
       "Monochrome high-contrast manga print",
@@ -299,9 +299,9 @@ export const INITIAL_PRODUCTS: Product[] = [
     reviewsCount: 78,
     shortDescription: "Blocks prying eyes from side angles beyond 28 degrees. Crystal clear vision directly in front of you.",
     description: "Protect your confidential messages, bank balances, and OTPs in crowded buses, metros, and public spaces. Advanced micro-louver technology blocks side view while maintaining true colors for the device owner looking straight on.",
-    image: "https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?auto=format&fit=crop&w=800&q=80",
+    image: "/images/privacy-glass.jpg",
     additionalImages: [
-      "https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?auto=format&fit=crop&w=800&q=80",
+      "/images/privacy-glass.jpg",
     ],
     features: [
       "28-degree micro-louver privacy polarization",
@@ -329,9 +329,9 @@ export const INITIAL_PRODUCTS: Product[] = [
     reviewsCount: 165,
     shortDescription: "Dual USB-C + USB-A ports powered by Gallium Nitride (GaN) semiconductor. Charges phones to 60% in 25 mins.",
     description: "Compact next-generation power adapter capable of fast-charging laptops, iPads, iPhones, and Android flagships at full speed. Intelligent thermal management prevents overheating during high-wattage power delivery.",
-    image: "https://images.unsplash.com/photo-1583863788434-e58a36330cf0?auto=format&fit=crop&w=800&q=80",
+    image: "/images/fast-charger.jpg",
     additionalImages: [
-      "https://images.unsplash.com/photo-1583863788434-e58a36330cf0?auto=format&fit=crop&w=800&q=80",
+      "/images/fast-charger.jpg",
     ],
     features: [
       "65W Power Delivery (PD 3.0, PPS, QC 4.0+)",
@@ -364,9 +364,9 @@ export const INITIAL_PRODUCTS: Product[] = [
     reviewsCount: 92,
     shortDescription: "Tangle-free ballistic nylon braided 1.2m cable with E-Marker smart chip. Supports 480Mbps data transfer.",
     description: "Built to survive 20,000+ bends. Zinc-alloy connectors withstand rigorous daily plugging, while thick oxygen-free copper cores support up to 5A 100W Power Delivery effortlessly.",
-    image: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=800&q=80",
+    image: "/images/braided-cable.jpg",
     additionalImages: [
-      "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=800&q=80",
+      "/images/braided-cable.jpg",
     ],
     features: [
       "100W (20V/5A) Power Delivery charging support",
@@ -398,9 +398,9 @@ export const INITIAL_PRODUCTS: Product[] = [
     reviewsCount: 88,
     shortDescription: "40-hour massive battery backup, 10mm titanium dynamic bass drivers, and Environmental Noise Cancellation.",
     description: "Designed for all-day comfort during work, travel, and workouts. Ergonomic soft liquid-silicone neckband with instant magnetic on/off power switch and low latency gaming mode.",
-    image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80",
+    image: "/images/neckband.jpg",
     additionalImages: [
-      "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80",
+      "/images/neckband.jpg",
     ],
     features: [
       "40 Hours of non-stop audio playback",
@@ -432,9 +432,9 @@ export const INITIAL_PRODUCTS: Product[] = [
     reviewsCount: 230,
     shortDescription: "Visit PHONEX stores in Coimbatore, Annur, or P. Puliam patti for on-the-spot laser cutting & heat fit.",
     description: "Have your custom mobile skin fitted by our certified technicians in under 5 minutes. We use high-precision Plotter cutters calibrated to 0.01mm tolerances and industrial heat guns for perfect bezel adherence.",
-    image: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80",
+    image: "/images/laser-service.jpg",
     additionalImages: [
-      "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80",
+      "/images/laser-service.jpg",
     ],
     features: [
       "On-the-spot 5 minute precision application",
@@ -466,9 +466,9 @@ export const INITIAL_PRODUCTS: Product[] = [
     reviewsCount: 140,
     shortDescription: "Original display broken glass restoration using cleanroom OCA vacuum debubbler technology.",
     description: "If your touch and display still function but the outer glass is shattered, do not pay for an expensive full display replacement. Our specialist technicians separate the broken glass and laminate a fresh OEM glass layer, preserving 100% of your genuine original AMOLED/LCD panel colors.",
-    image: "https://images.unsplash.com/photo-1598327105666-5b89351aff97?auto=format&fit=crop&w=800&q=80",
+    image: "/images/oca-service.jpg",
     additionalImages: [
-      "https://images.unsplash.com/photo-1598327105666-5b89351aff97?auto=format&fit=crop&w=800&q=80",
+      "/images/oca-service.jpg",
     ],
     features: [
       "Preserves original factory display & color calibration",

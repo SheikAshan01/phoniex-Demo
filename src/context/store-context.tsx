@@ -70,7 +70,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [isInitialized, setIsInitialized] = useState(false);
 
   // Version key to invalidate stale cache from older sessions
-  const CACHE_VERSION_KEY = "phonex_v3_clean_assets";
+  const CACHE_VERSION_KEY = "phonex_v4_local_hd_assets";
 
   // Load from localStorage on client mount with automatic cache migration
   useEffect(() => {

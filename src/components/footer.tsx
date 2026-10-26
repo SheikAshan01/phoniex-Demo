@@ -39,8 +39,8 @@ export function Footer() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [router]);
 
-  // Do not render public customer footer in the admin dashboard section
-  if (pathname?.startsWith("/admin")) {
+  // Do not render public customer footer in the admin dashboard or login page
+  if (pathname?.startsWith("/admin") || pathname?.startsWith("/login")) {
     return null;
   }
 
