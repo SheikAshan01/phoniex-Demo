@@ -1,14 +1,43 @@
 "use client";
 
-import React from "react";
+import React, { useRef, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Phone, Mail, MapPin, Clock, ShieldCheck, Truck, RotateCcw } from "lucide-react";
 import { STORE_CONTACT, VERIFIED_LOCATIONS } from "@/data/locations";
 
 export function Footer() {
   const pathname = usePathname();
+  const router = useRouter();
+  const tapCountRef = useRef(0);
+  const tapTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handleSecretAdminTrigger = () => {
+    tapCountRef.current += 1;
+    if (tapTimerRef.current) clearTimeout(tapTimerRef.current);
+
+    if (tapCountRef.current >= 3) {
+      tapCountRef.current = 0;
+      router.push("/admin");
+    } else {
+      tapTimerRef.current = setTimeout(() => {
+        tapCountRef.current = 0;
+      }, 500);
+    }
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Secret shortcut: Ctrl + Shift + A or Cmd + Shift + A
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === "A" || e.key === "a")) {
+        e.preventDefault();
+        router.push("/admin");
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [router]);
 
   // Do not render public customer footer in the admin dashboard section
   if (pathname?.startsWith("/admin")) {
@@ -138,11 +167,6 @@ export function Footer() {
                   About PHONEX Brand
                 </Link>
               </li>
-              <li>
-                <Link href="/admin" className="hover:text-blue-600 transition-colors font-medium">
-                  Admin Portal
-                </Link>
-              </li>
             </ul>
           </div>
 
@@ -179,7 +203,12 @@ export function Footer() {
 
         {/* Bottom Legal Copyright */}
         <div className="mt-10 pt-6 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-slate-400 text-[11px]">
-          <p>© 2026 PHONEX — Sales | Services | Gadgets. All rights reserved.</p>
+          <p
+            onClick={handleSecretAdminTrigger}
+            className="select-none cursor-default"
+          >
+            © 2026 PHONEX — Sales | Services | Gadgets. All rights reserved.
+          </p>
           <div className="flex items-center gap-3">
             <span>Free Shipping above ₹499</span>
             <span>•</span>

@@ -33,22 +33,6 @@ export function Navbar() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const searchInputRef = useRef<HTMLInputElement>(null);
-  const lastTapRef = useRef<number>(0);
-
-  const triggerAdminSecret = () => {
-    setIsMobileMenuOpen(false);
-    router.push("/admin");
-  };
-
-  const handleSecretDoubleTap = (e: React.TouchEvent | React.MouseEvent) => {
-    const now = Date.now();
-    if (now - lastTapRef.current < 400) {
-      e.preventDefault();
-      triggerAdminSecret();
-    }
-    lastTapRef.current = now;
-  };
-
   // Close mobile menu on route change
   useEffect(() => {
     setIsMobileMenuOpen(false);
@@ -347,11 +331,10 @@ export function Navbar() {
             >
               <div>
                 <div className="flex items-center justify-between pb-6 border-b border-slate-100">
-                  <div
-                    onDoubleClick={triggerAdminSecret}
-                    onTouchEnd={handleSecretDoubleTap}
-                    className="flex items-center gap-3 cursor-pointer select-none group/brand"
-                    title="Double-tap for Admin Portal"
+                  <Link
+                    href="/"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex items-center gap-3 select-none group/brand"
                   >
                     <div className="relative w-10 h-10 rounded-full overflow-hidden bg-white border border-slate-200 shadow-xs flex-shrink-0 group-hover/brand:border-blue-600 transition-colors">
                       <Image
@@ -367,7 +350,7 @@ export function Navbar() {
                         Coimbatore • Annur • Pulampatti
                       </p>
                     </div>
-                  </div>
+                  </Link>
                   <button
                     onClick={() => setIsMobileMenuOpen(false)}
                     className="p-2 text-slate-500 hover:text-slate-900 rounded-lg hover:bg-slate-100"
@@ -462,12 +445,7 @@ export function Navbar() {
                   <PhoneCall className="w-4 h-4 text-blue-600" />
                   <span>Call Store</span>
                 </a>
-                <p
-                  onDoubleClick={triggerAdminSecret}
-                  onTouchEnd={handleSecretDoubleTap}
-                  className="text-[10px] text-slate-400 text-center mt-3 cursor-pointer select-none hover:text-slate-600 transition-colors"
-                  title="Double-tap for Admin Portal"
-                >
+                <p className="text-[10px] text-slate-400 text-center mt-3 select-none">
                   © 2026 PHONEX • Verified Genuine Goods
                 </p>
               </div>
