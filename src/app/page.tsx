@@ -132,23 +132,14 @@ export default function HomePage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-slate-50/40 text-slate-900">
-      {/* 1. COMPACT ANNOUNCEMENT BAR (Genuine, clean, no artificial urgency) */}
-      <div className="bg-slate-900 text-white text-xs py-2 px-4 text-center border-b border-slate-800">
-        <p className="font-medium tracking-wide">
-          <span>Free Express Delivery on orders above ₹499</span>
-          <span className="mx-2 text-slate-500">•</span>
-          <span className="text-blue-400 font-bold">Unbreakable Tempered Glass from ₹99</span>
-        </p>
-      </div>
-
-      {/* 2. COMPACT SHOPPING HERO */}
+      {/* 1. COMPACT SHOPPING HERO */}
       <section className="bg-white border-b border-slate-200 py-10 sm:py-14">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
             <div className="md:col-span-7 space-y-4 text-left">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200/80">
                 <span className="w-2 h-2 rounded-full bg-blue-600" />
-                <span>Genuine Electronics & Smartphone Wraps</span>
+                <span>Unbreakable Tempered Glass from ₹99 • Genuine 3M Vinyl</span>
               </div>
 
               <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-[1.15]">

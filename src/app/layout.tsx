@@ -3,7 +3,6 @@ import { Inter } from "next/font/google";
 import { Suspense } from "react";
 import "./globals.css";
 import { StoreProvider } from "@/context/store-context";
-import { AnnouncementBar } from "@/components/announcement-bar";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import { CartDrawer } from "@/components/cart-drawer";
@@ -72,7 +71,6 @@ export default function RootLayout({
     <html lang="en" className={`${inter.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col font-sans bg-white text-slate-900 selection:bg-blue-600 selection:text-white">
         <StoreProvider>
-          <AnnouncementBar />
           <Suspense fallback={<div className="h-20 bg-white border-b border-slate-200" />}>
             <Navbar />
           </Suspense>

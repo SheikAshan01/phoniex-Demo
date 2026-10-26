@@ -14,7 +14,7 @@ test.describe("PHONEX E-Commerce End-to-End Suite", () => {
     const brandName = page.locator("header").getByText("PHONEX", { exact: false });
     await expect(brandName.first()).toBeVisible();
 
-    // Verify announcement bar with verified promo
+    // Verify verified promo highlight
     await expect(page.getByText("Unbreakable Tempered Glass from ₹99").first()).toBeVisible();
 
     // Verify hero copy
