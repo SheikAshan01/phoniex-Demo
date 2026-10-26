@@ -16,9 +16,9 @@ import {
   ShieldCheck,
   PhoneCall,
   Palette,
-  Wrench,
-  Info,
-  Smartphone,
+  Home,
+  Store,
+  Headphones,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useStore } from "@/context/store-context";
@@ -33,6 +33,21 @@ export function Navbar() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const lastTapRef = useRef<number>(0);
+
+  const triggerAdminSecret = () => {
+    setIsMobileMenuOpen(false);
+    router.push("/admin");
+  };
+
+  const handleSecretDoubleTap = (e: React.TouchEvent | React.MouseEvent) => {
+    const now = Date.now();
+    if (now - lastTapRef.current < 400) {
+      e.preventDefault();
+      triggerAdminSecret();
+    }
+    lastTapRef.current = now;
+  };
 
   // Close mobile menu on route change
   useEffect(() => {
@@ -68,10 +83,10 @@ export function Navbar() {
   };
 
   const navLinks: { label: string; href: string; icon: any; highlight?: boolean }[] = [
-    { label: "Home", href: "/", icon: ShoppingBag },
-    { label: "Shop", href: "/shop", icon: ShoppingBag },
-    { label: "Mobiles", href: "/shop?category=tempered-glass", icon: Smartphone },
-    { label: "Accessories", href: "/shop?category=accessories", icon: ShoppingBag },
+    { label: "Home", href: "/", icon: Home },
+    { label: "Shop", href: "/shop", icon: Store },
+    { label: "Unbreakable Temper", href: "/shop?category=tempered-glass", icon: ShieldCheck },
+    { label: "Accessories", href: "/shop?category=accessories", icon: Headphones },
     { label: "Skins", href: "/shop?category=custom-skins", icon: Palette },
   ];
 
@@ -332,8 +347,13 @@ export function Navbar() {
             >
               <div>
                 <div className="flex items-center justify-between pb-6 border-b border-slate-100">
-                  <div className="flex items-center gap-3">
-                    <div className="relative w-10 h-10 rounded-full overflow-hidden bg-white border border-slate-200 shadow-xs flex-shrink-0">
+                  <div
+                    onDoubleClick={triggerAdminSecret}
+                    onTouchEnd={handleSecretDoubleTap}
+                    className="flex items-center gap-3 cursor-pointer select-none group/brand"
+                    title="Double-tap for Admin Portal"
+                  >
+                    <div className="relative w-10 h-10 rounded-full overflow-hidden bg-white border border-slate-200 shadow-xs flex-shrink-0 group-hover/brand:border-blue-600 transition-colors">
                       <Image
                         src="/images/phonex-badge.png"
                         alt="PHONEX"
@@ -429,16 +449,6 @@ export function Navbar() {
                       <span>My Account & Orders</span>
                     </div>
                   </Link>
-                  <Link
-                    href="/admin"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="flex items-center justify-between px-3.5 py-2.5 rounded-lg text-sm text-slate-600 hover:bg-slate-50"
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <SlidersHorizontal className="w-4 h-4 text-blue-600" />
-                      <span>Admin Management</span>
-                    </div>
-                  </Link>
                 </div>
               </div>
 
@@ -446,12 +456,18 @@ export function Navbar() {
               <div className="pt-6 border-t border-slate-100 mt-6">
                 <a
                   href={`tel:${STORE_CONTACT.phone}`}
-                  className="flex items-center gap-2.5 text-xs text-slate-600 font-medium p-2.5 bg-slate-50 rounded-xl hover:bg-blue-50 hover:text-blue-700 transition-colors"
+                  className="flex items-center justify-center gap-2.5 text-sm font-bold text-slate-800 p-3 bg-slate-100 hover:bg-blue-50 hover:text-blue-600 rounded-xl border border-slate-200/80 transition-colors shadow-2xs"
+                  aria-label="Call PHONEX Store"
                 >
                   <PhoneCall className="w-4 h-4 text-blue-600" />
-                  <span>Call Store: {STORE_CONTACT.phone}</span>
+                  <span>Call Store</span>
                 </a>
-                <p className="text-[10px] text-slate-400 text-center mt-3">
+                <p
+                  onDoubleClick={triggerAdminSecret}
+                  onTouchEnd={handleSecretDoubleTap}
+                  className="text-[10px] text-slate-400 text-center mt-3 cursor-pointer select-none hover:text-slate-600 transition-colors"
+                  title="Double-tap for Admin Portal"
+                >
                   © 2026 PHONEX • Verified Genuine Goods
                 </p>
               </div>
