@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -15,104 +15,45 @@ import {
   Search,
   Check,
   Zap,
-  Flame,
   ShoppingBag,
-  Tag,
-  PhoneCall,
-  MapPin,
-  Clock,
-  Star,
   SlidersHorizontal,
-  ChevronLeft,
-  Filter,
   X,
+  Filter,
 } from "lucide-react";
 import { useStore } from "@/context/store-context";
 import { ProductCard } from "@/components/product-card";
-import { ShinyText } from "@/components/react-bits/ShinyText";
-import { POPULAR_PHONE_MODELS, SKIN_FINISHES } from "@/data/products";
-import { SkinFinish, ProductCategory } from "@/types";
+import { Product } from "@/types";
 
 export default function HomePage() {
-  const { products, addToCart, showToast } = useStore();
+  const { products } = useStore();
 
   // Active Catalog Filter & Search States
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [sortBy, setSortBy] = useState<"featured" | "price-asc" | "price-desc" | "rating">("featured");
   const [priceFilter, setPriceFilter] = useState<"all" | "under-150" | "150-300" | "above-300">("all");
-  const [minRating, setMinRating] = useState<number>(0);
-  const [inStockOnly, setInStockOnly] = useState<boolean>(false);
+  const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
 
-  // Flipkart Banner Slider State
-  const [currentSlide, setCurrentSlide] = useState(0);
+  // Filter out service items from physical store catalog
+  const physicalProducts = useMemo(() => {
+    return products.filter((p) => p.category !== "services");
+  }, [products]);
 
-  // Mini configurator state
-  const [configModel, setConfigModel] = useState<string>("Apple iPhone 16 Pro");
-  const [configFinish, setConfigFinish] = useState<SkinFinish>("Matte Soft-Touch");
-  const [configPreset, setConfigPreset] = useState<number>(0);
-  const [isConfigAdding, setIsConfigAdding] = useState<boolean>(false);
+  // Featured Products (Top 4 genuine physical items)
+  const featuredProducts = useMemo(() => {
+    return physicalProducts.filter((p) => p.isFeatured).slice(0, 4);
+  }, [physicalProducts]);
 
-  const skinPresets = [
-    {
-      name: "Cyber Carbon Matrix",
-      image: "/images/hero-skin-showcase.jpg",
-      accent: "#2563eb",
-      price: 149,
-    },
-    {
-      name: "Forged Carbon Fiber",
-      image: "/images/carbon-skin-design.jpg",
-      accent: "#0f172a",
-      price: 149,
-    },
-    {
-      name: "Straw Hat Anime Manga",
-      image: "/images/anime-skin-design.jpg",
-      accent: "#e11d48",
-      price: 149,
-    },
-    {
-      name: "Personalised Photo Wrap",
-      image: "/images/photo-skin-design.jpg",
-      accent: "#059669",
-      price: 199,
-    },
-  ];
-
-  // Auto slide carousel every 5s
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % 3);
-    }, 6000);
-    return () => clearInterval(timer);
-  }, []);
-
-  const handleConfiguratorAddToCart = () => {
-    const targetProduct =
-      products.find((p) => p.slug === "customised-mobile-skin") || products[0];
-
-    setIsConfigAdding(true);
-    addToCart(targetProduct, {
-      selectedModel: configModel,
-      selectedFinish: configFinish,
-      customText: skinPresets[configPreset].name,
-      quantity: 1,
-    });
-    showToast(`Added ${configModel} (${skinPresets[configPreset].name}) to Bag!`, "success", skinPresets[configPreset].image);
-    setTimeout(() => setIsConfigAdding(false), 800);
-  };
-
-  // Instant Filtered Products for Live Shopping
+  // All Products Filtered
   const filteredProducts = useMemo(() => {
-    let result = [...products];
+    let result = [...physicalProducts];
 
-    // Category filter
+    // Category
     if (selectedCategory !== "all") {
       result = result.filter((p) => p.category === selectedCategory);
     }
 
-    // Search query filter
+    // Search query
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase().trim();
       result = result.filter(
@@ -133,16 +74,6 @@ export default function HomePage() {
       result = result.filter((p) => p.price > 300);
     }
 
-    // Min Rating
-    if (minRating > 0) {
-      result = result.filter((p) => p.rating >= minRating);
-    }
-
-    // In Stock
-    if (inStockOnly) {
-      result = result.filter((p) => p.inStock);
-    }
-
     // Sorting
     if (sortBy === "price-asc") {
       result.sort((a, b) => a.price - b.price);
@@ -153,101 +84,87 @@ export default function HomePage() {
     }
 
     return result;
-  }, [products, selectedCategory, searchQuery, priceFilter, minRating, inStockOnly, sortBy]);
+  }, [physicalProducts, selectedCategory, searchQuery, priceFilter, sortBy]);
 
-  const flipkartCategories = [
-    { id: "all", label: "All Mobiles & Skins", icon: Smartphone, count: products.length },
-    { id: "tempered-glass", label: "9H Glass ₹99", icon: Shield, tag: "Deal" },
-    { id: "custom-skins", label: "3M Custom Skins", icon: Sparkles, tag: "₹149" },
-    { id: "photo-skins", label: "Photo Wraps", icon: Tag, tag: "Upload" },
-    { id: "anime-skins", label: "Anime Manga", icon: Zap, tag: "Hot" },
-    { id: "accessories", label: "Fast Chargers", icon: ShoppingBag, tag: "65W" },
-    { id: "services", label: "Store Repairs", icon: CheckCircle, tag: "₹49" },
+  const categories = [
+    {
+      id: "custom-skins",
+      name: "Custom Mobile Skins",
+      count: "From ₹149",
+      image: "/images/hero-skin-showcase.jpg",
+      description: "0.15mm laser-cut 3M vinyl for 500+ phones",
+    },
+    {
+      id: "tempered-glass",
+      name: "Tempered Glass",
+      count: "Offer ₹99",
+      image: "/images/tempered-glass-promo.jpg",
+      description: "Unbreakable 9H flexible hybrid glass",
+    },
+    {
+      id: "photo-skins",
+      name: "Personalised Photo Skins",
+      count: "From ₹199",
+      image: "/images/photo-skin-design.jpg",
+      description: "1200 DPI archival custom memories",
+    },
+    {
+      id: "anime-skins",
+      name: "Anime & Graphic Skins",
+      count: "From ₹149",
+      image: "/images/anime-skin-design.jpg",
+      description: "Straw Hat & Manga edition wraps",
+    },
+    {
+      id: "accessories",
+      name: "Fast Chargers & Cables",
+      count: "From ₹249",
+      image: "https://images.unsplash.com/photo-1583863788434-e58a36330cf0?auto=format&fit=crop&w=800&q=80",
+      description: "65W GaN power adapters & 100W cables",
+    },
   ];
 
-  const clearAllFilters = () => {
+  const clearFilters = () => {
     setSelectedCategory("all");
     setSearchQuery("");
     setPriceFilter("all");
-    setMinRating(0);
-    setInStockOnly(false);
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-slate-100/60 pb-16">
-      {/* 1. FLIPKART-STYLE TOP CATEGORY NAVIGATION BAR */}
-      <section className="bg-white border-b border-slate-200/90 shadow-2xs">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-          <div className="flex items-center justify-between gap-4 overflow-x-auto scrollbar-none py-1">
-            {flipkartCategories.map((cat) => {
-              const Icon = cat.icon;
-              const isActive = selectedCategory === cat.id;
-              return (
-                <button
-                  key={cat.id}
-                  type="button"
-                  onClick={() => setSelectedCategory(cat.id)}
-                  className={`flex flex-col items-center flex-shrink-0 group transition-all px-2 ${
-                    isActive ? "scale-105" : "hover:scale-102"
-                  }`}
-                >
-                  <div
-                    className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center transition-colors mb-1.5 relative ${
-                      isActive
-                        ? "bg-blue-600 text-white shadow-md shadow-blue-200"
-                        : "bg-slate-50 text-slate-700 group-hover:bg-blue-50 group-hover:text-blue-600 border border-slate-200/70"
-                    }`}
-                  >
-                    <Icon className="w-6 h-6" />
-                    {cat.tag && (
-                      <span className="absolute -top-1.5 -right-1 bg-amber-500 text-white text-[9px] font-black px-1.5 py-0.2 rounded-full uppercase tracking-tighter shadow-2xs">
-                        {cat.tag}
-                      </span>
-                    )}
-                  </div>
-                  <span
-                    className={`text-[11px] sm:text-xs font-bold truncate max-w-[90px] text-center ${
-                      isActive ? "text-blue-600" : "text-slate-700 group-hover:text-blue-600"
-                    }`}
-                  >
-                    {cat.label}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      </section>
+    <div className="flex flex-col min-h-screen bg-slate-50/40 text-slate-900">
+      {/* 1. COMPACT ANNOUNCEMENT BAR (Genuine, clean, no artificial urgency) */}
+      <div className="bg-slate-900 text-white text-xs py-2 px-4 text-center border-b border-slate-800">
+        <p className="font-medium tracking-wide">
+          <span>Free Express Delivery on orders above ₹499</span>
+          <span className="mx-2 text-slate-500">•</span>
+          <span className="text-blue-400 font-bold">Unbreakable Tempered Glass from ₹99</span>
+        </p>
+      </div>
 
-      {/* 2. COMPACT FLIPKART PROMOTIONAL BANNER SLIDER */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-3 w-full">
-        <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden shadow-sm border border-slate-200 bg-slate-900 text-white h-[230px] sm:h-[260px] md:h-[280px]">
-          {/* Slide 1: Main Brand & Required Hero Texts for Test Compatibility */}
-          <div
-            className={`absolute inset-0 transition-opacity duration-700 ease-in-out p-6 sm:p-10 flex flex-col justify-center ${
-              currentSlide === 0 ? "opacity-100 z-10 pointer-events-auto" : "opacity-0 z-0 pointer-events-none"
-            }`}
-          >
-            <div className="max-w-2xl">
-              <div className="inline-flex items-center gap-2 bg-blue-500/20 text-blue-300 border border-blue-400/30 px-3 py-1 rounded-full text-[11px] font-bold mb-3">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                <span>PHONEX Genuine Store • Unbreakable Tempered Glass from ₹99</span>
+      {/* 2. COMPACT SHOPPING HERO */}
+      <section className="bg-white border-b border-slate-200 py-10 sm:py-14">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
+            <div className="md:col-span-7 space-y-4 text-left">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200/80">
+                <span className="w-2 h-2 rounded-full bg-blue-600" />
+                <span>Genuine Electronics & Smartphone Wraps</span>
               </div>
 
-              <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black text-white leading-tight">
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-[1.15]">
                 Make Your Phone{" "}
-                <span className="text-blue-400 inline">Unmistakably Yours.</span>
+                <span className="text-blue-600 block sm:inline">Unmistakably Yours.</span>
               </h1>
 
-              <p className="text-xs sm:text-sm text-slate-300 mt-2 leading-relaxed max-w-xl line-clamp-2">
+              <p className="text-sm sm:text-base text-slate-600 leading-relaxed max-w-xl">
                 Explore custom mobile skins, personalised designs, and everyday mobile essentials.
-                Engineered with 3M automotive vinyl for 500+ smartphones from ₹149.
+                Engineered with 3M automotive vinyl and ultra-thin 0.15mm precision for over 500+ smartphones.
               </p>
 
-              <div className="mt-4 flex items-center gap-3">
+              <div className="pt-2 flex flex-wrap items-center gap-3">
                 <Link
                   href="/shop"
-                  className="bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs sm:text-sm px-5 py-2.5 rounded-xl transition-all shadow-md flex items-center gap-1.5"
+                  className="bg-slate-900 hover:bg-blue-600 text-white font-bold text-xs sm:text-sm px-6 py-3.5 rounded-xl transition-all shadow-xs flex items-center gap-2"
                 >
                   <span>Explore Collection</span>
                   <ArrowRight className="w-4 h-4" />
@@ -255,280 +172,147 @@ export default function HomePage() {
 
                 <Link
                   href="/custom-studio"
-                  className="bg-white/10 hover:bg-white/20 text-white border border-white/20 font-bold text-xs sm:text-sm px-4 py-2.5 rounded-xl transition-all flex items-center gap-1.5"
+                  className="bg-slate-100 hover:bg-slate-200 text-slate-900 font-bold text-xs sm:text-sm px-5 py-3.5 rounded-xl transition-all border border-slate-200 flex items-center gap-2"
                 >
-                  <Smartphone className="w-4 h-4 text-blue-300" />
+                  <Smartphone className="w-4 h-4 text-blue-600" />
                   <span>Create Your Custom Skin</span>
                 </Link>
               </div>
             </div>
 
-            {/* Right side floating phone preview */}
-            <div className="hidden lg:block absolute right-12 top-1/2 -translate-y-1/2 w-44 aspect-[3/4] rounded-2xl overflow-hidden shadow-2xl border border-white/20">
-              <Image src="/images/hero-skin-showcase.jpg" alt="Hero Skin" fill className="object-cover" />
-            </div>
-          </div>
-
-          {/* Slide 2: ₹99 Unbreakable Glass Special Deal */}
-          <div
-            className={`absolute inset-0 transition-opacity duration-700 ease-in-out p-6 sm:p-10 flex flex-col justify-center bg-gradient-to-r from-slate-950 via-slate-900 to-blue-950 ${
-              currentSlide === 1 ? "opacity-100 z-10 pointer-events-auto" : "opacity-0 z-0 pointer-events-none"
-            }`}
-          >
-            <div className="max-w-xl">
-              <span className="bg-emerald-500 text-slate-950 text-xs font-black px-2.5 py-1 rounded uppercase tracking-wider">
-                Flipkart Mega Deal • 60% OFF
-              </span>
-              <h2 className="text-2xl sm:text-4xl font-black text-white mt-2">
-                Unbreakable 9H Hybrid Glass — ₹99
-              </h2>
-              <p className="text-xs sm:text-sm text-slate-300 mt-2">
-                Drop-tested PMMA flexible ceramic shield with full glue bubble-free installation for 500+ phones.
-              </p>
-              <div className="mt-4">
-                <Link
-                  href="/product/unbreakable-9h-tempered-glass"
-                  className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs sm:text-sm px-6 py-2.5 rounded-xl shadow-md inline-flex items-center gap-2"
-                >
-                  <Zap className="w-4 h-4 fill-slate-950" />
-                  <span>Claim ₹99 Offer Now</span>
-                </Link>
+            <div className="md:col-span-5 flex justify-center">
+              <div className="relative w-full max-w-xs aspect-[4/5] rounded-2xl overflow-hidden border border-slate-200 shadow-sm bg-slate-100">
+                <Image
+                  src="/images/hero-skin-showcase.jpg"
+                  alt="PHONEX Precision Custom Mobile Skin"
+                  fill
+                  priority
+                  className="object-cover"
+                  sizes="(max-width: 768px) 80vw, 360px"
+                />
+                <div className="absolute bottom-3 inset-x-3 bg-white/95 backdrop-blur-xs p-3 rounded-xl border border-slate-200 flex items-center justify-between text-xs">
+                  <div>
+                    <p className="font-bold text-slate-900">3M Cast Vinyl Skins</p>
+                    <p className="text-[11px] text-slate-500">Zero residue removal</p>
+                  </div>
+                  <span className="font-extrabold text-blue-600 bg-blue-50 px-2 py-0.5 rounded">
+                    From ₹149
+                  </span>
+                </div>
               </div>
             </div>
-            <div className="hidden lg:block absolute right-12 top-1/2 -translate-y-1/2 w-52 aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl border border-white/20">
-              <Image src="/images/tempered-glass-promo.jpg" alt="₹99 Glass" fill className="object-cover" />
-            </div>
           </div>
+        </div>
+      </section>
 
-          {/* Slide 3: Personalised Photo Wraps */}
-          <div
-            className={`absolute inset-0 transition-opacity duration-700 ease-in-out p-6 sm:p-10 flex flex-col justify-center bg-gradient-to-r from-emerald-950 via-slate-900 to-slate-950 ${
-              currentSlide === 2 ? "opacity-100 z-10 pointer-events-auto" : "opacity-0 z-0 pointer-events-none"
-            }`}
-          >
-            <div className="max-w-xl">
-              <span className="bg-blue-500 text-white text-xs font-black px-2.5 py-1 rounded uppercase tracking-wider">
-                Personalised Studio
-              </span>
-              <h2 className="text-2xl sm:text-4xl font-black text-white mt-2">
-                Print Your Own Photos on 3M Vinyl
+      {/* 3. SHOP BY CATEGORY (Simple tiles with clear labels) */}
+      <section className="py-12 border-b border-slate-200 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+                Shop by Category
               </h2>
-              <p className="text-xs sm:text-sm text-slate-300 mt-2">
-                Upload family portraits, couple photos, or custom anime artwork. 1200 DPI archival ink starting at ₹199.
+              <p className="text-xs text-slate-500 mt-0.5">
+                Select a category to filter the store catalog
               </p>
-              <div className="mt-4">
-                <Link
-                  href="/product/personalised-photo-mobile-skin"
-                  className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs sm:text-sm px-6 py-2.5 rounded-xl shadow-md inline-flex items-center gap-2"
-                >
-                  <span>Upload & Customise Skin</span>
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
-              </div>
             </div>
-            <div className="hidden lg:block absolute right-12 top-1/2 -translate-y-1/2 w-44 aspect-[3/4] rounded-2xl overflow-hidden shadow-2xl border border-white/20">
-              <Image src="/images/photo-skin-design.jpg" alt="Photo Skin" fill className="object-cover" />
-            </div>
+            <Link
+              href="/shop"
+              className="text-xs font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1"
+            >
+              <span>View All</span>
+              <ChevronRight className="w-4 h-4" />
+            </Link>
           </div>
 
-          {/* Slide Arrow Controls */}
-          <button
-            onClick={() => setCurrentSlide((prev) => (prev === 0 ? 2 : prev - 1))}
-            className="absolute left-2.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/20 hover:bg-white/40 text-white flex items-center justify-center backdrop-blur-xs z-20"
-            aria-label="Previous Slide"
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </button>
-          <button
-            onClick={() => setCurrentSlide((prev) => (prev + 1) % 3)}
-            className="absolute right-2.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/20 hover:bg-white/40 text-white flex items-center justify-center backdrop-blur-xs z-20"
-            aria-label="Next Slide"
-          >
-            <ChevronRight className="w-5 h-5" />
-          </button>
-
-          {/* Dots Indicator */}
-          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-20">
-            {[0, 1, 2].map((idx) => (
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
+            {categories.map((cat) => (
               <button
-                key={idx}
-                onClick={() => setCurrentSlide(idx)}
-                className={`h-1.5 rounded-full transition-all ${
-                  currentSlide === idx ? "w-6 bg-blue-500" : "w-1.5 bg-white/40"
+                key={cat.id}
+                type="button"
+                onClick={() => {
+                  setSelectedCategory(cat.id);
+                  const el = document.getElementById("all-products");
+                  el?.scrollIntoView({ behavior: "smooth" });
+                }}
+                className={`p-3 rounded-2xl border text-left transition-all flex flex-col justify-between group ${
+                  selectedCategory === cat.id
+                    ? "border-blue-600 bg-blue-50/50 ring-2 ring-blue-600/20"
+                    : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/50 shadow-2xs"
                 }`}
-                aria-label={`Go to slide ${idx + 1}`}
-              />
+              >
+                <div className="relative aspect-video w-full rounded-xl overflow-hidden bg-slate-100 mb-2.5">
+                  <Image src={cat.image} alt={cat.name} fill className="object-cover transition-transform duration-300 group-hover:scale-105" sizes="200px" />
+                  <span className="absolute top-1.5 right-1.5 bg-slate-900/90 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">
+                    {cat.count}
+                  </span>
+                </div>
+                <div>
+                  <h3 className="font-bold text-xs sm:text-sm text-slate-900 group-hover:text-blue-600 transition-colors truncate">
+                    {cat.name}
+                  </h3>
+                  <p className="text-[11px] text-slate-500 mt-0.5 line-clamp-1">
+                    {cat.description}
+                  </p>
+                </div>
+              </button>
             ))}
           </div>
         </div>
       </section>
 
-      {/* 3. FLIPKART DEALS OF THE DAY STRIP */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 w-full">
-        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-amber-500 text-white flex items-center justify-center shadow-xs">
-              <Zap className="w-5 h-5 fill-white" />
-            </div>
+      {/* 4. FEATURED PRODUCTS (Clean product grid from actual catalog) */}
+      <section className="py-12 border-b border-slate-200 bg-slate-50/60">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between mb-6">
             <div>
-              <div className="flex items-center gap-2">
-                <h3 className="font-black text-sm sm:text-base text-slate-900">
-                  Deals of the Day
-                </h3>
-                <span className="bg-rose-50 text-rose-600 text-[10px] font-black px-2 py-0.5 rounded border border-rose-200">
-                  Ends in 08h 24m
-                </span>
-              </div>
-              <p className="text-[11px] text-slate-500">
-                Top rated mobile skins, unbreakable glass & 65W chargers at lowest prices
+              <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+                Featured Products
+              </h2>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Top customer favorites ready for same-day dispatch
               </p>
             </div>
+            <Link
+              href="/shop"
+              className="text-xs font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1"
+            >
+              <span>View All Products &rarr;</span>
+            </Link>
           </div>
 
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => {
-                setSelectedCategory("tempered-glass");
-              }}
-              className="px-3 py-1.5 rounded-lg bg-blue-50 text-blue-700 text-xs font-bold hover:bg-blue-100 transition-colors"
-            >
-              ₹99 Glass Deal
-            </button>
-            <button
-              onClick={() => {
-                setSelectedCategory("custom-skins");
-              }}
-              className="px-3 py-1.5 rounded-lg bg-slate-100 text-slate-700 text-xs font-bold hover:bg-slate-200 transition-colors"
-            >
-              ₹149 Skins
-            </button>
-            <button
-              onClick={clearAllFilters}
-              className="px-3 py-1.5 rounded-lg bg-slate-900 text-white text-xs font-bold hover:bg-blue-600 transition-colors"
-            >
-              View All ({products.length})
-            </button>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {featuredProducts.map((p) => (
+              <ProductCard key={p.id} product={p} />
+            ))}
           </div>
         </div>
       </section>
 
-      {/* 4. MAIN FLIPKART SHOPPING STOREFRONT (ALL PRODUCTS WITH FILTERS) */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 w-full">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* Left Sidebar Filter (Desktop) */}
-          <aside className="hidden lg:block lg:col-span-3 bg-white rounded-2xl p-5 border border-slate-200 shadow-2xs space-y-6 sticky top-24">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-              <div className="flex items-center gap-2">
-                <Filter className="w-4 h-4 text-blue-600" />
-                <h2 className="font-black text-sm text-slate-900 uppercase tracking-wide">
-                  Filters
-                </h2>
-              </div>
-              <button
-                type="button"
-                onClick={clearAllFilters}
-                className="text-xs font-bold text-blue-600 hover:text-blue-800"
-              >
-                Clear All
-              </button>
-            </div>
-
-            {/* Category Filter */}
+      {/* 5. ALL PRODUCTS (Complete catalog, search, filter, sort) */}
+      <section id="all-products" className="py-14 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Header Controls: Search, Filter, Sort */}
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 pb-4 border-b border-slate-200">
             <div>
-              <p className="text-xs font-bold text-slate-900 uppercase tracking-wide mb-2.5">
-                Categories
+              <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+                All Products
+              </h2>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Showing {filteredProducts.length} items ready to order
               </p>
-              <div className="space-y-1.5 text-xs">
-                {flipkartCategories.map((c) => (
-                  <button
-                    key={c.id}
-                    type="button"
-                    onClick={() => setSelectedCategory(c.id)}
-                    className={`w-full text-left px-2.5 py-1.5 rounded-lg font-medium flex items-center justify-between transition-colors ${
-                      selectedCategory === c.id
-                        ? "bg-blue-50 text-blue-700 font-bold"
-                        : "text-slate-600 hover:bg-slate-50"
-                    }`}
-                  >
-                    <span>{c.label}</span>
-                    {selectedCategory === c.id && <Check className="w-3.5 h-3.5 text-blue-600" />}
-                  </button>
-                ))}
-              </div>
             </div>
 
-            {/* Price Range Filter */}
-            <div>
-              <p className="text-xs font-bold text-slate-900 uppercase tracking-wide mb-2.5">
-                Price
-              </p>
-              <div className="space-y-1.5 text-xs">
-                {[
-                  { id: "all", label: "All Prices" },
-                  { id: "under-150", label: "Under ₹150 (₹99 - ₹149)" },
-                  { id: "150-300", label: "₹150 to ₹300" },
-                  { id: "above-300", label: "Above ₹300" },
-                ].map((p) => (
-                  <label key={p.id} className="flex items-center gap-2 cursor-pointer text-slate-700 hover:text-slate-900">
-                    <input
-                      type="radio"
-                      name="priceRange"
-                      checked={priceFilter === p.id}
-                      onChange={() => setPriceFilter(p.id as any)}
-                      className="text-blue-600 focus:ring-blue-500"
-                    />
-                    <span>{p.label}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            {/* Customer Rating Filter */}
-            <div>
-              <p className="text-xs font-bold text-slate-900 uppercase tracking-wide mb-2.5">
-                Customer Ratings
-              </p>
-              <div className="space-y-1.5 text-xs">
-                {[4, 4.5, 0].map((rating) => (
-                  <label key={rating} className="flex items-center gap-2 cursor-pointer text-slate-700">
-                    <input
-                      type="radio"
-                      name="minRating"
-                      checked={minRating === rating}
-                      onChange={() => setMinRating(rating)}
-                      className="text-blue-600"
-                    />
-                    <span>{rating === 0 ? "All Ratings" : `${rating}★ & above`}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            {/* Availability */}
-            <div className="pt-3 border-t border-slate-100">
-              <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-800">
-                <input
-                  type="checkbox"
-                  checked={inStockOnly}
-                  onChange={(e) => setInStockOnly(e.target.checked)}
-                  className="rounded text-blue-600"
-                />
-                <span>In Stock Only</span>
-              </label>
-            </div>
-          </aside>
-
-          {/* Right Product Grid Area */}
-          <div className="lg:col-span-9 space-y-4">
-            {/* Search Bar & Sorting Header */}
-            <div className="bg-white rounded-2xl p-4 border border-slate-200 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div className="relative flex-1">
+            {/* Search Input & Sort Options */}
+            <div className="flex items-center gap-2.5 w-full md:w-auto">
+              <div className="relative flex-1 md:w-72">
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search in all products (e.g. 65W, anime, photo, glass)..."
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-blue-600 focus:bg-white transition-all shadow-2xs"
+                  placeholder="Search products by name..."
+                  className="w-full bg-slate-50 border border-slate-300 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-blue-600 focus:bg-white shadow-2xs"
                 />
                 <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
                 {searchQuery && (
@@ -541,254 +325,124 @@ export default function HomePage() {
                 )}
               </div>
 
-              <div className="flex items-center justify-between sm:justify-end gap-3 text-xs">
-                <span className="text-slate-500 font-semibold truncate">
-                  {filteredProducts.length} Products
-                </span>
+              {/* Mobile Filter Toggle */}
+              <button
+                type="button"
+                onClick={() => setIsMobileFilterOpen(!isMobileFilterOpen)}
+                className="lg:hidden p-2 rounded-xl border border-slate-300 text-slate-700 bg-slate-50 text-xs font-bold flex items-center gap-1.5"
+              >
+                <Filter className="w-3.5 h-3.5" />
+                <span>Filters</span>
+              </button>
 
-                <div className="flex items-center gap-1.5">
-                  <span className="font-bold text-slate-700 hidden sm:inline">Sort:</span>
-                  <select
-                    value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value as any)}
-                    aria-label="Sort products"
-                    className="bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-blue-600"
-                  >
-                    <option value="featured">Featured Deals</option>
-                    <option value="price-asc">Price: Low to High</option>
-                    <option value="price-desc">Price: High to Low</option>
-                    <option value="rating">Customer Rating</option>
-                  </select>
-                </div>
-              </div>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as any)}
+                aria-label="Sort products"
+                className="bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 focus:outline-none focus:border-blue-600 shadow-2xs"
+              >
+                <option value="featured">Featured</option>
+                <option value="price-asc">Price: Low to High</option>
+                <option value="price-desc">Price: High to Low</option>
+                <option value="rating">Top Rated</option>
+              </select>
             </div>
+          </div>
 
-            {/* Mobile Filter Chips Strip */}
-            <div className="lg:hidden flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none text-xs">
-              <span className="font-bold text-slate-500 flex-shrink-0">Filters:</span>
-              {flipkartCategories.map((c) => (
-                <button
-                  key={c.id}
-                  onClick={() => setSelectedCategory(c.id)}
-                  className={`flex-shrink-0 px-3 py-1 rounded-full font-bold border transition-colors ${
-                    selectedCategory === c.id
-                      ? "bg-blue-600 text-white border-blue-600"
-                      : "bg-white text-slate-700 border-slate-200"
-                  }`}
-                >
-                  {c.label}
-                </button>
-              ))}
-            </div>
+          {/* Category Filter Pills (Desktop & Tablet) */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-4 scrollbar-none mb-6">
+            <button
+              onClick={() => setSelectedCategory("all")}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-colors flex-shrink-0 border ${
+                selectedCategory === "all"
+                  ? "bg-slate-900 text-white border-slate-900"
+                  : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50"
+              }`}
+            >
+              All ({physicalProducts.length})
+            </button>
+            {categories.map((c) => (
+              <button
+                key={c.id}
+                onClick={() => setSelectedCategory(c.id)}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-colors flex-shrink-0 border ${
+                  selectedCategory === c.id
+                    ? "bg-blue-600 text-white border-blue-600"
+                    : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50"
+                }`}
+              >
+                {c.name}
+              </button>
+            ))}
 
-            {/* Active Catalog Grid */}
-            {filteredProducts.length === 0 ? (
-              <div className="bg-white rounded-2xl p-12 text-center border border-dashed border-slate-300">
-                <ShoppingBag className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-                <h3 className="font-bold text-base text-slate-900 mb-1">No products match your criteria</h3>
-                <p className="text-xs text-slate-500 max-w-sm mx-auto mb-4">
-                  Try clearing your search query or reset category and price filters.
-                </p>
-                <button
-                  type="button"
-                  onClick={clearAllFilters}
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-5 py-2.5 rounded-xl shadow-xs"
-                >
-                  Reset All Filters
-                </button>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-                {filteredProducts.map((product) => (
-                  <ProductCard key={product.id} product={product} />
-                ))}
-              </div>
+            {/* Clear filter chip */}
+            {(selectedCategory !== "all" || searchQuery || priceFilter !== "all") && (
+              <button
+                onClick={clearFilters}
+                className="text-xs text-rose-600 font-bold px-2.5 py-1 hover:underline flex-shrink-0"
+              >
+                Clear Filters
+              </button>
             )}
           </div>
-        </div>
-      </section>
 
-      {/* 5. INTERACTIVE WRAP STUDIO CONFIGURATOR */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full">
-        <div className="bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-8 border border-slate-200 shadow-2xs">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 pb-4 border-b border-slate-100">
-            <div>
-              <div className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-blue-600 mb-1">
-                <Sparkles className="w-3.5 h-3.5" /> Interactive 3D Phone Customizer
-              </div>
-              <h3 className="text-xl sm:text-2xl font-black text-slate-900">
-                Customise Your Phone Skin Online
-              </h3>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Select model, choose design, pick texture finish, and add directly to your bag.
-              </p>
-            </div>
-            <Link
-              href="/custom-studio"
-              className="text-xs font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1"
-            >
-              <span>Launch Full Studio</span>
-              <ArrowRight className="w-4 h-4" />
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center bg-slate-50 rounded-2xl p-5 sm:p-6 border border-slate-200">
-            {/* Phone Visual Live Preview */}
-            <div className="lg:col-span-5 flex justify-center">
-              <div className="relative w-56 sm:w-64 aspect-[3/4] rounded-3xl bg-slate-900 p-2 shadow-xl border border-slate-300 overflow-hidden">
-                <div className="relative w-full h-full rounded-2xl overflow-hidden bg-slate-900">
-                  <Image
-                    src={skinPresets[configPreset].image}
-                    alt={skinPresets[configPreset].name}
-                    fill
-                    className="object-cover transition-all duration-500"
-                    sizes="260px"
-                  />
-                  <div className="absolute bottom-3 inset-x-3 bg-slate-950/85 backdrop-blur-md p-2 rounded-xl text-white text-center border border-white/10 shadow-lg">
-                    <p className="text-[11px] font-bold truncate">{configModel}</p>
-                    <p className="text-[10px] text-blue-400 font-medium">{configFinish}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Configurator Controls */}
-            <div className="lg:col-span-7 space-y-4">
-              <div>
-                <label className="block text-xs font-bold text-slate-900 uppercase tracking-wide mb-1.5">
-                  1. Phone Model (500+ Supported)
-                </label>
-                <select
-                  value={configModel}
-                  onChange={(e) => setConfigModel(e.target.value)}
-                  className="w-full bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600 shadow-2xs"
-                >
-                  {POPULAR_PHONE_MODELS.map((model) => (
-                    <option key={model} value={model}>
-                      {model}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-900 uppercase tracking-wide mb-1.5">
-                  2. Design Preset
-                </label>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                  {skinPresets.map((preset, idx) => (
-                    <button
-                      key={preset.name}
-                      type="button"
-                      onClick={() => setConfigPreset(idx)}
-                      className={`p-2 rounded-xl border text-left transition-all ${
-                        configPreset === idx
-                          ? "bg-white border-blue-600 ring-2 ring-blue-600/20 shadow-xs"
-                          : "bg-white/80 border-slate-200 hover:border-slate-300"
-                      }`}
-                    >
-                      <div className="relative aspect-video rounded-lg overflow-hidden bg-slate-100 mb-1.5">
-                        <Image src={preset.image} alt={preset.name} fill className="object-cover" sizes="100px" />
-                      </div>
-                      <p className="text-xs font-bold text-slate-900 truncate">{preset.name}</p>
-                      <p className="text-[11px] text-blue-600 font-bold">₹{preset.price}</p>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-900 uppercase tracking-wide mb-1.5">
-                  3. Tactile Texture Finish
-                </label>
-                <div className="flex flex-wrap gap-1.5">
-                  {SKIN_FINISHES.map((finish) => (
-                    <button
-                      key={finish}
-                      type="button"
-                      onClick={() => setConfigFinish(finish)}
-                      className={`text-xs px-3 py-1.5 rounded-xl font-bold border transition-all ${
-                        configFinish === finish
-                          ? "bg-slate-900 text-white border-slate-900 shadow-2xs"
-                          : "bg-white text-slate-700 border-slate-200 hover:border-slate-300"
-                      }`}
-                    >
-                      {finish}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="pt-3 border-t border-slate-200 flex items-center justify-between gap-3">
-                <div>
-                  <span className="text-[10px] text-slate-500 font-medium">Configured Price:</span>
-                  <div className="text-xl font-black text-slate-900">
-                    ₹{skinPresets[configPreset].price}
-                  </div>
-                </div>
-
-                <button
-                  onClick={handleConfiguratorAddToCart}
-                  disabled={isConfigAdding}
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-5 py-2.5 rounded-xl transition-all shadow-md flex items-center gap-1.5"
-                >
-                  {isConfigAdding ? (
-                    <>
-                      <Check className="w-4 h-4" />
-                      <span>Added to Bag!</span>
-                    </>
-                  ) : (
-                    <>
-                      <Smartphone className="w-4 h-4" />
-                      <span>Add Configured Skin to Bag</span>
-                    </>
-                  )}
+          {/* Mobile Filter Dropdown Drawer */}
+          {isMobileFilterOpen && (
+            <div className="lg:hidden p-4 mb-6 rounded-2xl bg-slate-50 border border-slate-200 space-y-4">
+              <div className="flex items-center justify-between pb-2 border-b border-slate-200">
+                <span className="font-bold text-xs text-slate-900 uppercase">Filters</span>
+                <button onClick={clearFilters} className="text-xs text-blue-600 font-bold">
+                  Clear All
                 </button>
               </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
-      {/* 6. FLIPKART E-COMMERCE ASSURANCE STRIP */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 w-full">
-        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/90 shadow-2xs grid grid-cols-2 md:grid-cols-4 gap-4 text-xs text-slate-700">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center flex-shrink-0">
-              <Truck className="w-5 h-5" />
+              <div>
+                <p className="text-xs font-bold text-slate-700 mb-2">Price Filter</p>
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  {[
+                    { id: "all", label: "All Prices" },
+                    { id: "under-150", label: "Under ₹150" },
+                    { id: "150-300", label: "₹150 to ₹300" },
+                    { id: "above-300", label: "Above ₹300" },
+                  ].map((p) => (
+                    <button
+                      key={p.id}
+                      onClick={() => setPriceFilter(p.id as any)}
+                      className={`p-2 rounded-lg border text-left font-semibold ${
+                        priceFilter === p.id
+                          ? "bg-blue-600 text-white border-blue-600"
+                          : "bg-white text-slate-700 border-slate-200"
+                      }`}
+                    >
+                      {p.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
-            <div>
-              <p className="font-bold text-slate-900">Free Express Delivery</p>
-              <p className="text-[11px] text-slate-500">Orders above ₹499</p>
+          )}
+
+          {/* Product Grid */}
+          {filteredProducts.length === 0 ? (
+            <div className="text-center py-16 bg-slate-50 rounded-2xl border border-dashed border-slate-300">
+              <ShoppingBag className="w-10 h-10 text-slate-300 mx-auto mb-2" />
+              <p className="text-sm font-bold text-slate-700">No products match your criteria</p>
+              <p className="text-xs text-slate-400 mt-1">Try resetting your search query or category filter</p>
+              <button
+                type="button"
+                onClick={clearFilters}
+                className="mt-4 px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-bold"
+              >
+                Reset All Filters
+              </button>
             </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center flex-shrink-0">
-              <Shield className="w-5 h-5" />
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              {filteredProducts.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
             </div>
-            <div>
-              <p className="font-bold text-slate-900">Genuine 3M Vinyl</p>
-              <p className="text-[11px] text-slate-500">Zero sticky residue</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center flex-shrink-0">
-              <RotateCcw className="w-5 h-5" />
-            </div>
-            <div>
-              <p className="font-bold text-slate-900">7-Day Replacement</p>
-              <p className="text-[11px] text-slate-500">Hassle-free guarantee</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center flex-shrink-0">
-              <PhoneCall className="w-5 h-5" />
-            </div>
-            <div>
-              <p className="font-bold text-slate-900">WhatsApp Helpdesk</p>
-              <p className="text-[11px] text-slate-500">+91 88075 74880</p>
-            </div>
-          </div>
+          )}
         </div>
       </section>
     </div>

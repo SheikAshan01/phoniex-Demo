@@ -18,6 +18,7 @@ import {
   Palette,
   Wrench,
   Info,
+  Smartphone,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useStore } from "@/context/store-context";
@@ -66,11 +67,12 @@ export function Navbar() {
     }
   };
 
-  const navLinks = [
+  const navLinks: { label: string; href: string; icon: any; highlight?: boolean }[] = [
+    { label: "Home", href: "/", icon: ShoppingBag },
     { label: "Shop", href: "/shop", icon: ShoppingBag },
-    { label: "Custom Studio", href: "/custom-studio", highlight: true, icon: Palette },
-    { label: "Services", href: "/services", icon: Wrench },
-    { label: "About", href: "/about", icon: Info },
+    { label: "Mobiles", href: "/shop?category=tempered-glass", icon: Smartphone },
+    { label: "Accessories", href: "/shop?category=accessories", icon: ShoppingBag },
+    { label: "Skins", href: "/shop?category=custom-skins", icon: Palette },
   ];
 
   return (

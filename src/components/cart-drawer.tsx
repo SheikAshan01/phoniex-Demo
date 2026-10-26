@@ -2,12 +2,14 @@
 
 import React from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { X, Trash2, Plus, Minus, ArrowRight, ShoppingBag, ShieldCheck, Truck } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useStore } from "@/context/store-context";
 
 export function CartDrawer() {
+  const router = useRouter();
   const {
     cart,
     isCartDrawerOpen,
@@ -25,7 +27,7 @@ export function CartDrawer() {
   return (
     <AnimatePresence>
       {isCartDrawerOpen && (
-        <div className="fixed inset-0 z-50 flex justify-end">
+        <div className="fixed inset-y-0 right-0 left-0 sm:left-auto z-50 flex justify-end h-[100dvh] max-h-[100dvh]">
           {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -40,11 +42,11 @@ export function CartDrawer() {
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
-            transition={{ type: "spring", damping: 28, stiffness: 220 }}
-            className="relative w-full max-w-md bg-white h-full shadow-2xl flex flex-col justify-between overflow-hidden z-10"
+            transition={{ duration: 0.2, ease: "easeOut" }}
+            className="relative w-full max-w-md bg-white h-[100dvh] max-h-[100dvh] shadow-2xl flex flex-col overflow-hidden z-10"
           >
             {/* Drawer Header */}
-            <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-white">
+            <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between bg-white flex-shrink-0">
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
                   <ShoppingBag className="w-4 h-4" />
@@ -67,7 +69,7 @@ export function CartDrawer() {
 
             {/* Free Shipping Progress Indicator */}
             {cart.length > 0 && (
-              <div className="bg-slate-50 px-5 py-3 border-b border-slate-100 text-xs">
+              <div className="bg-slate-50 px-4 py-2.5 sm:px-5 sm:py-3 border-b border-slate-100 text-xs flex-shrink-0">
                 <div className="flex items-center justify-between font-medium text-slate-700 mb-1.5">
                   <span className="flex items-center gap-1.5">
                     <Truck className="w-3.5 h-3.5 text-blue-600" />
@@ -93,7 +95,7 @@ export function CartDrawer() {
             )}
 
             {/* Cart Items List */}
-            <div className="flex-1 overflow-y-auto p-5 space-y-4">
+            <div className="flex-1 overflow-y-auto min-h-0 p-4 sm:p-5 space-y-3 sm:space-y-4">
               {cart.length === 0 ? (
                 <div className="text-center py-16 px-4">
                   <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mx-auto text-slate-400 mb-4">
@@ -210,7 +212,7 @@ export function CartDrawer() {
 
             {/* Drawer Footer with Subtotal & Actions */}
             {cart.length > 0 && (
-              <div className="p-5 border-t border-slate-100 bg-white space-y-3">
+              <div className="p-4 sm:p-5 border-t border-slate-100 bg-white space-y-2.5 sm:space-y-3 flex-shrink-0">
                 <div className="space-y-1.5 text-xs">
                   <div className="flex justify-between text-slate-600">
                     <span>Subtotal</span>
@@ -238,18 +240,18 @@ export function CartDrawer() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 pt-1">
+                <div className="grid grid-cols-2 gap-2 pt-1 relative z-20">
                   <Link
                     href="/cart"
                     onClick={closeCartDrawer}
-                    className="py-3 px-4 rounded-xl font-semibold text-xs text-center border border-slate-300 text-slate-700 hover:bg-slate-50 transition-colors"
+                    className="relative z-20 py-2.5 sm:py-3 px-3 sm:px-4 rounded-xl font-semibold text-xs text-center border border-slate-300 text-slate-700 hover:bg-slate-50 transition-colors"
                   >
                     View Full Bag
                   </Link>
                   <Link
                     href="/checkout"
                     onClick={closeCartDrawer}
-                    className="py-3 px-4 rounded-xl font-bold text-xs text-center bg-blue-600 hover:bg-blue-700 text-white transition-colors shadow-sm flex items-center justify-center gap-1.5"
+                    className="relative z-20 py-2.5 sm:py-3 px-3 sm:px-4 rounded-xl font-bold text-xs text-center bg-blue-600 hover:bg-blue-700 text-white transition-colors shadow-sm flex items-center justify-center gap-1.5"
                   >
                     <span>Checkout</span>
                     <ArrowRight className="w-3.5 h-3.5" />

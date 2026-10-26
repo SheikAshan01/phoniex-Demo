@@ -18,6 +18,7 @@ import {
   Layers,
   Flame,
   Scissors,
+  Zap,
 } from "lucide-react";
 import { useStore } from "@/context/store-context";
 import { ProductCard } from "@/components/product-card";
@@ -91,6 +92,20 @@ function ProductDetailContent() {
       quantity,
     });
     setTimeout(() => setIsAdding(false), 800);
+  };
+
+  const handleBuyNow = () => {
+    if (product.supportedModels && product.supportedModels.length > 0 && !selectedModel) {
+      setModelError(true);
+      return;
+    }
+    setModelError(false);
+    addToCart(product, {
+      selectedModel: selectedModel || undefined,
+      selectedFinish: selectedFinish || undefined,
+      quantity,
+    });
+    router.push("/checkout");
   };
 
   const allImages = [
@@ -307,7 +322,7 @@ function ProductDetailContent() {
                   <button
                     onClick={handleAddToCart}
                     disabled={isAdding}
-                    className="flex-1 bg-slate-900 hover:bg-blue-600 active:scale-[0.98] text-white font-extrabold text-xs sm:text-sm py-3.5 sm:py-4 px-3 sm:px-6 rounded-xl transition-all shadow-md flex items-center justify-center gap-2"
+                    className="flex-1 bg-slate-900 hover:bg-slate-800 active:scale-[0.98] text-white font-extrabold text-xs sm:text-sm py-3.5 sm:py-4 px-3 sm:px-4 rounded-xl transition-all shadow-xs flex items-center justify-center gap-1.5"
                   >
                     {isAdding ? (
                       <>
@@ -317,9 +332,18 @@ function ProductDetailContent() {
                     ) : (
                       <>
                         <ShoppingBag className="w-4 h-4" />
-                        <span className="truncate">Add to Bag • ₹{product.price * quantity}</span>
+                        <span className="truncate">Add to Bag</span>
                       </>
                     )}
+                  </button>
+
+                  {/* Buy Now Button */}
+                  <button
+                    onClick={handleBuyNow}
+                    className="flex-1 bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white font-extrabold text-xs sm:text-sm py-3.5 sm:py-4 px-3 sm:px-4 rounded-xl transition-all shadow-md flex items-center justify-center gap-1.5"
+                  >
+                    <Zap className="w-4 h-4 fill-white" />
+                    <span className="truncate">Buy Now • ₹{product.price * quantity}</span>
                   </button>
 
                   {/* Wishlist */}
