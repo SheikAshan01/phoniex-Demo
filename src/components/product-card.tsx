@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { Heart, Eye, Plus, Check, Smartphone, Star, Zap, ShoppingCart } from "lucide-react";
 import { Product } from "@/types";
 import { useStore } from "@/context/store-context";
+import { STORE_CONFIG } from "@/data/store-config";
 
 interface ProductCardProps {
   product: Product;
@@ -202,7 +203,7 @@ export function ProductCard({ product, priority = false }: ProductCardProps) {
           </div>
 
           <div className="text-[10px] text-slate-500 mb-2 flex items-center justify-between">
-            <span className="text-emerald-700 font-medium">Free delivery over ₹499</span>
+            <span className="text-emerald-700 font-medium">Free delivery over ₹{STORE_CONFIG.freeShippingThreshold}</span>
             <span className="font-semibold text-slate-400">Taxes incl.</span>
           </div>
 

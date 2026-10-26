@@ -13,6 +13,8 @@ import {
   Layers,
   Sparkles,
   ArrowRight,
+  Truck,
+  RotateCcw,
 } from "lucide-react";
 import { VERIFIED_LOCATIONS, STORE_CONTACT } from "@/data/locations";
 
@@ -116,8 +118,66 @@ export default function AboutPage() {
           </div>
         </div>
 
+        {/* Verified Store Policies: Shipping, Returns & Privacy */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+          {/* Shipping Policy */}
+          <div id="shipping" className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-xs flex flex-col justify-between scroll-mt-24">
+            <div>
+              <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mb-4">
+                <Truck className="w-5 h-5" />
+              </div>
+              <h3 className="font-extrabold text-slate-900 text-base mb-2">Shipping Policy</h3>
+              <p className="text-xs text-slate-600 leading-relaxed mb-3">
+                Orders above <strong>₹499</strong> qualify for <strong>Free Delivery</strong>. A nominal ₹49 fee applies for orders under ₹499.
+              </p>
+              <ul className="text-xs text-slate-500 space-y-1.5 list-disc pl-4">
+                <li>Dispatched within 24 hours from Tamil Nadu hubs</li>
+                <li>2 to 4 business days across Tamil Nadu</li>
+                <li>4 to 6 business days for rest of India</li>
+                <li>Real-time tracking updates via SMS & Account</li>
+              </ul>
+            </div>
+          </div>
+
+          {/* 7-Day Replacement Guarantee */}
+          <div id="returns" className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-xs flex flex-col justify-between scroll-mt-24">
+            <div>
+              <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center mb-4">
+                <RotateCcw className="w-5 h-5" />
+              </div>
+              <h3 className="font-extrabold text-slate-900 text-base mb-2">7-Day Replacement Guarantee</h3>
+              <p className="text-xs text-slate-600 leading-relaxed mb-3">
+                We stand behind our precision cuts. If your skin does not fit your model accurately or arrives damaged, we replace it free of charge.
+              </p>
+              <ul className="text-xs text-slate-500 space-y-1.5 list-disc pl-4">
+                <li>Hassle-free replacement within 7 days of delivery</li>
+                <li>Zero return shipping fees for defective items</li>
+                <li>Instant walk-in replacement at our 3 store outlets</li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Customer Privacy & Security */}
+          <div id="privacy" className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-xs flex flex-col justify-between scroll-mt-24">
+            <div>
+              <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-4">
+                <ShieldCheck className="w-5 h-5" />
+              </div>
+              <h3 className="font-extrabold text-slate-900 text-base mb-2">Privacy & Transparency</h3>
+              <p className="text-xs text-slate-600 leading-relaxed mb-3">
+                Your personal information is strictly confidential. We never sell customer records or send unsolicited promotional marketing.
+              </p>
+              <ul className="text-xs text-slate-500 space-y-1.5 list-disc pl-4">
+                <li>Contact details used solely for order fulfilment</li>
+                <li>Uploaded custom photos auto-deleted after laser cutting</li>
+                <li>Secure payment processing via standard Indian gateways</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
         {/* Contact Banner */}
-        <div className="bg-slate-900 text-white rounded-3xl p-8 sm:p-12 text-center">
+        <div id="contact" className="bg-slate-900 text-white rounded-3xl p-8 sm:p-12 text-center scroll-mt-24">
           <h2 className="text-2xl sm:text-3xl font-black text-white">
             Have a Question or Custom Requirement?
           </h2>

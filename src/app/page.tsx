@@ -86,6 +86,20 @@ export default function HomePage() {
     return result;
   }, [physicalProducts, selectedCategory, searchQuery, priceFilter, sortBy]);
 
+  // Avoid duplicate product presentation between Featured Products and All Products on homepage
+  const displayCatalogProducts = useMemo(() => {
+    if (
+      selectedCategory === "all" &&
+      !searchQuery.trim() &&
+      priceFilter === "all" &&
+      sortBy === "featured"
+    ) {
+      const featuredIds = new Set(featuredProducts.map((p) => p.id));
+      return filteredProducts.filter((p) => !featuredIds.has(p.id));
+    }
+    return filteredProducts;
+  }, [filteredProducts, selectedCategory, searchQuery, priceFilter, sortBy, featuredProducts]);
+
   const categories = [
     {
       id: "custom-skins",
@@ -143,22 +157,29 @@ export default function HomePage() {
               </div>
 
               <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-[1.15]">
-                Make Your Phone{" "}
-                <span className="text-blue-600 block sm:inline">Unmistakably Yours.</span>
+                Custom Mobile Skins &{" "}
+                <span className="text-blue-600 block sm:inline">Tempered Glass</span>
               </h1>
 
               <p className="text-sm sm:text-base text-slate-600 leading-relaxed max-w-xl">
-                Explore custom mobile skins, personalised designs, and everyday mobile essentials.
-                Engineered with 3M automotive vinyl and ultra-thin 0.15mm precision for over 500+ smartphones.
+                Precision 3M vinyl phone wraps from ₹149, 9H shatterproof tempered glass at ₹99, and fast mobile essentials for 500+ smartphone models.
               </p>
 
               <div className="pt-2 flex flex-wrap items-center gap-3">
                 <Link
-                  href="/shop"
+                  href="/shop?category=custom-skins"
                   className="bg-slate-900 hover:bg-blue-600 text-white font-bold text-xs sm:text-sm px-6 py-3.5 rounded-xl transition-all shadow-xs flex items-center gap-2"
                 >
-                  <span>Explore Collection</span>
+                  <span>Shop Mobile Skins</span>
                   <ArrowRight className="w-4 h-4" />
+                </Link>
+
+                <Link
+                  href="/shop?category=tempered-glass"
+                  className="bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-xs sm:text-sm px-5 py-3.5 rounded-xl transition-all border border-blue-200 flex items-center gap-2"
+                >
+                  <Shield className="w-4 h-4 text-blue-600" />
+                  <span>Tempered Glass ₹99</span>
                 </Link>
 
                 <Link
@@ -166,7 +187,7 @@ export default function HomePage() {
                   className="bg-slate-100 hover:bg-slate-200 text-slate-900 font-bold text-xs sm:text-sm px-5 py-3.5 rounded-xl transition-all border border-slate-200 flex items-center gap-2"
                 >
                   <Smartphone className="w-4 h-4 text-blue-600" />
-                  <span>Create Your Custom Skin</span>
+                  <span>Custom Studio</span>
                 </Link>
               </div>
             </div>
@@ -288,10 +309,14 @@ export default function HomePage() {
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 pb-4 border-b border-slate-200">
             <div>
               <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-                All Products
+                {selectedCategory === "all" && !searchQuery.trim()
+                  ? "More Catalog Products"
+                  : "Matching Products"}
               </h2>
               <p className="text-xs text-slate-500 mt-0.5">
-                Showing {filteredProducts.length} items ready to order
+                {selectedCategory === "all" && !searchQuery.trim()
+                  ? `Showing ${displayCatalogProducts.length} additional items • 4 bestsellers featured above`
+                  : `Showing ${displayCatalogProducts.length} items ready to order`}
               </p>
             </div>
 
@@ -414,7 +439,7 @@ export default function HomePage() {
           )}
 
           {/* Product Grid */}
-          {filteredProducts.length === 0 ? (
+          {displayCatalogProducts.length === 0 ? (
             <div className="text-center py-16 bg-slate-50 rounded-2xl border border-dashed border-slate-300">
               <ShoppingBag className="w-10 h-10 text-slate-300 mx-auto mb-2" />
               <p className="text-sm font-bold text-slate-700">No products match your criteria</p>
@@ -428,11 +453,24 @@ export default function HomePage() {
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-              {filteredProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                {displayCatalogProducts.map((product) => (
+                  <ProductCard key={product.id} product={product} />
+                ))}
+              </div>
+
+              {/* Link to Full Catalog in Shop */}
+              <div className="mt-10 text-center pt-8 border-t border-slate-100">
+                <Link
+                  href="/shop"
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-slate-900 hover:bg-blue-600 text-white font-bold text-xs transition-colors shadow-xs"
+                >
+                  <span>Explore Complete Catalog with All Device Filters</span>
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+              </div>
+            </>
           )}
         </div>
       </section>

@@ -15,6 +15,8 @@ import {
 } from "lucide-react";
 import { useStore } from "@/context/store-context";
 
+import { STORE_CONFIG, calculateShippingFee } from "@/data/store-config";
+
 export default function CartPage() {
   const {
     cart,
@@ -25,9 +27,10 @@ export default function CartPage() {
     cartSavings,
   } = useStore();
 
-  const freeShippingThreshold = 499;
+  const freeShippingThreshold = STORE_CONFIG.freeShippingThreshold;
   const amountNeeded = freeShippingThreshold - cartSubtotal;
-  const isFreeShipping = amountNeeded <= 0;
+  const shippingFee = calculateShippingFee(cartSubtotal);
+  const isFreeShipping = shippingFee === 0;
 
   if (cart.length === 0) {
     return (

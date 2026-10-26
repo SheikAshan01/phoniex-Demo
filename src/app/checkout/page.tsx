@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { useStore } from "@/context/store-context";
 import { VERIFIED_LOCATIONS } from "@/data/locations";
+import { calculateShippingFee } from "@/data/store-config";
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -41,7 +42,7 @@ export default function CheckoutPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const shippingCost = deliveryMethod === "pickup" ? 0 : cartSubtotal >= 499 ? 0 : 49;
+  const shippingCost = calculateShippingFee(cartSubtotal, deliveryMethod === "pickup");
   const finalTotal = cartSubtotal + shippingCost;
 
   if (cart.length === 0) {

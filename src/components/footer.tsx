@@ -141,10 +141,10 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Col 3: Customer Care & Services */}
+          {/* Col 3: Customer Care & Policies */}
           <div>
             <p className="font-bold text-xs uppercase tracking-wider text-slate-900 mb-3">
-              Customer Care
+              Customer Care & Policies
             </p>
             <ul className="space-y-2 text-slate-600">
               <li>
@@ -153,8 +153,18 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/custom-studio" className="hover:text-blue-600 transition-colors">
-                  Custom Skin Studio
+                <Link href="/about#shipping" className="hover:text-blue-600 transition-colors">
+                  Shipping Policy (Free above ₹499)
+                </Link>
+              </li>
+              <li>
+                <Link href="/about#returns" className="hover:text-blue-600 transition-colors">
+                  7-Day Replacement Guarantee
+                </Link>
+              </li>
+              <li>
+                <Link href="/about#privacy" className="hover:text-blue-600 transition-colors">
+                  Privacy Policy & Terms
                 </Link>
               </li>
               <li>

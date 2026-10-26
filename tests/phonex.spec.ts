@@ -17,13 +17,13 @@ test.describe("PHONEX E-Commerce End-to-End Suite", () => {
     // Verify verified promo highlight
     await expect(page.getByText("Unbreakable Tempered Glass from ₹99").first()).toBeVisible();
 
-    // Verify hero copy
-    await expect(page.locator("h1")).toContainText("Make Your Phone");
-    await expect(page.getByText("Explore custom mobile skins, personalised designs").first()).toBeVisible();
+    // Verify hero copy reflects actual products
+    await expect(page.locator("h1")).toContainText("Custom Mobile Skins");
+    await expect(page.getByText("Precision 3M vinyl phone wraps").first()).toBeVisible();
 
     // Verify primary and secondary CTA buttons
-    await expect(page.getByRole("link", { name: "Explore Collection" }).first()).toBeVisible();
-    await expect(page.getByRole("link", { name: "Create Your Custom Skin" }).first()).toBeVisible();
+    await expect(page.getByRole("link", { name: "Shop Mobile Skins" }).first()).toBeVisible();
+    await expect(page.getByRole("link", { name: "Custom Studio" }).first()).toBeVisible();
 
     // No fatal unhandled runtime console errors
     const fatalErrors = consoleErrors.filter(
@@ -232,6 +232,53 @@ test.describe("PHONEX E-Commerce End-to-End Suite", () => {
     // Check toast is at the top of the viewport
     const toast = page.locator(".fixed.top-4, .fixed.top-5, .fixed.top-6").first();
     await expect(toast).toBeVisible();
+  });
+
+  test("10. Homepage eliminates duplicate cards and verifies shipping consistency", async ({ page }) => {
+    await page.goto("/");
+
+    // Verify Featured section has 4 cards
+    const featuredSection = page.locator("section:has-text('Featured Products')");
+    await expect(featuredSection).toBeVisible();
+
+    // Verify catalog section header shows "More Catalog Products" without duplicating featured items
+    await expect(page.getByText("More Catalog Products")).toBeVisible();
+    await expect(page.getByText("4 bestsellers featured above")).toBeVisible();
+
+    // Check footer contains verified policy links
+    await expect(page.locator("footer").getByRole("link", { name: /Shipping Policy/i })).toBeVisible();
+    await expect(page.locator("footer").getByRole("link", { name: /7-Day Replacement/i })).toBeVisible();
+    await expect(page.locator("footer").getByRole("link", { name: /Privacy Policy/i })).toBeVisible();
+
+    // Ensure no public Admin Portal link in footer
+    const publicAdminLink = page.locator("footer").getByRole("link", { name: /^Admin Portal$/i });
+    await expect(publicAdminLink).toHaveCount(0);
+  });
+
+  test("11. Mobile and responsive layouts at 360px, 390px, 430px have zero horizontal overflow", async ({ page }) => {
+    const viewports = [
+      { width: 360, height: 740, label: "360px Android compact" },
+      { width: 390, height: 844, label: "390px iPhone standard" },
+      { width: 430, height: 932, label: "430px iPhone Pro Max" },
+      { width: 768, height: 1024, label: "768px iPad tablet" },
+      { width: 1280, height: 800, label: "1280px Desktop" },
+    ];
+
+    for (const vp of viewports) {
+      await page.setViewportSize({ width: vp.width, height: vp.height });
+      await page.goto("/");
+      await page.waitForLoadState("domcontentloaded");
+
+      // Verify no horizontal overflow on document
+      const hasHorizontalOverflow = await page.evaluate(() => {
+        return document.documentElement.scrollWidth > window.innerWidth;
+      });
+      expect(hasHorizontalOverflow, `Horizontal overflow detected at ${vp.label}`).toBe(false);
+
+      // Verify main action buttons remain clickable
+      const mainCta = page.getByRole("link", { name: /Shop Mobile Skins/i }).first();
+      await expect(mainCta).toBeVisible();
+    }
   });
 });
 

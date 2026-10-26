@@ -7,6 +7,7 @@ import Image from "next/image";
 import { X, Trash2, Plus, Minus, ArrowRight, ShoppingBag, ShieldCheck, Truck } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useStore } from "@/context/store-context";
+import { STORE_CONFIG, calculateShippingFee } from "@/data/store-config";
 
 export function CartDrawer() {
   const router = useRouter();
@@ -20,9 +21,11 @@ export function CartDrawer() {
     cartSavings,
   } = useStore();
 
-  const freeShippingThreshold = 499;
+  const freeShippingThreshold = STORE_CONFIG.freeShippingThreshold;
   const progressToFreeShipping = Math.min(100, Math.round((cartSubtotal / freeShippingThreshold) * 100));
   const amountNeeded = freeShippingThreshold - cartSubtotal;
+  const shippingFee = calculateShippingFee(cartSubtotal);
+  const estimatedTotal = cartSubtotal + shippingFee;
 
   return (
     <AnimatePresence>
@@ -227,16 +230,16 @@ export function CartDrawer() {
                   <div className="flex justify-between text-slate-600">
                     <span>Estimated Shipping</span>
                     <span>
-                      {amountNeeded <= 0 ? (
+                      {shippingFee === 0 ? (
                         <span className="text-emerald-600 font-semibold uppercase">Free</span>
                       ) : (
-                        "Calculated at checkout"
+                        <span className="font-semibold text-slate-900">₹{shippingFee}</span>
                       )}
                     </span>
                   </div>
                   <div className="pt-2 border-t border-slate-100 flex justify-between items-baseline">
                     <span className="font-bold text-slate-900 text-sm">Estimated Total</span>
-                    <span className="font-black text-xl text-slate-900">₹{cartSubtotal}</span>
+                    <span className="font-black text-xl text-slate-900">₹{estimatedTotal}</span>
                   </div>
                 </div>
 

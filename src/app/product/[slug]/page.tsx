@@ -25,6 +25,7 @@ import { ProductCard } from "@/components/product-card";
 import { SkinFinish, Product } from "@/types";
 import { STORE_CONTACT } from "@/data/locations";
 import { INITIAL_PRODUCTS } from "@/data/products";
+import { STORE_CONFIG } from "@/data/store-config";
 
 function ProductDetailContent() {
   const params = useParams();
@@ -219,7 +220,7 @@ function ProductDetailContent() {
                   )}
                 </div>
                 <p className="text-[11px] text-slate-500 mt-1 font-medium">
-                  Tax included • Free shipping across Tamil Nadu & India over ₹499
+                  Tax included • Free delivery on orders over ₹{STORE_CONFIG.freeShippingThreshold} (₹{STORE_CONFIG.standardShippingFee} below) • {STORE_CONFIG.dispatchClaim}
                 </p>
 
                 {/* Description */}
